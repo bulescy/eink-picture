@@ -105,6 +105,17 @@ Time_data PCF85063_GetTime()
 	return time;
 }
 
+void PCF85063_GetTimeNow(Time_data * pTime)
+{
+	pTime->years = BcdToDec(PCF85063_Read_Byte(YEARS_REG));
+	pTime->months = BcdToDec(PCF85063_Read_Byte(MONTHS_REG)&0x1F);
+	pTime->days = BcdToDec(PCF85063_Read_Byte(DAYS_REG)&0x3F);
+	pTime->hours = BcdToDec(PCF85063_Read_Byte(HOURS_REG)&0x3F);
+	pTime->minutes = BcdToDec(PCF85063_Read_Byte(MINUTES_REG)&0x7F);
+	pTime->seconds = BcdToDec(PCF85063_Read_Byte(SECONDS_REG)&0x7F);
+}
+
+
 void PCF85063_alarm_Time_Enabled(Time_data time)
 {
     if(time.seconds>59)

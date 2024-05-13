@@ -6,6 +6,7 @@ include_directories(../lib/Config)
 include_directories(../lib/GUI)
 include_directories(../lib/e-Paper)
 include_directories(../lib/FatFs_SPI/**)
+include_directories(../lib/RTC)
 
 # Generate the link library
 add_library(examples ${DIR_examples_SRCS})

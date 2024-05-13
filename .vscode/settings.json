@@ -1,6 +1,14 @@
 {
     "files.associations": {
         "led.h": "c",
-        "dev_config.h": "c"
+        "dev_config.h": "c",
+        "epd_test.h": "c",
+        "gui_paint.h": "c",
+        "run_file.h": "c",
+        "imagedata.h": "c",
+        "epd_7in3f.h": "c",
+        "gui_bmpfile.h": "c",
+        "time.h": "c",
+        "waveshare_pcf85063.h": "c"
     }
 }

@@ -5,6 +5,8 @@
 #include "waveshare_PCF85063.h" // RTC
 #include "DEV_Config.h"
 
+#include "calendar.h"
+
 #include <time.h>
 
 extern const char *fileList;
@@ -49,7 +51,8 @@ void run_display(Time_data Time, Time_data alarmTime, char hasCard)
         EPD_7in3f_display_BMP(pathName, measureVBAT());   // display bmp
     }
     else {
-        EPD_7in3f_display(measureVBAT());
+        // EPD_7in3f_display(measureVBAT());
+        CALENDAR_Test();
     }
 
     PCF85063_clear_alarm_flag();    // clear RTC alarm flag
