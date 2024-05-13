@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "led.h": "c",
+        "dev_config.h": "c"
+    }
+}
