@@ -19,7 +19,7 @@ Mode 0: Automatically get pic folder names and sort them
 Mode 1: Automatically get pic folder names but not sorted
 Mode 2: pic folder name is not automatically obtained, users need to create fileList.txt file and write the picture name in TF card by themselves
 */
-#define Mode 2
+#define Mode 1
 
 
 float measureVBAT(void)
@@ -49,6 +49,7 @@ void run_display(Time_data Time, Time_data alarmTime, char hasCard)
     if(hasCard) {
         setFilePath();
         EPD_7in3f_display_BMP(pathName, measureVBAT());   // display bmp
+        logtest(1);
     }
     else {
         // EPD_7in3f_display(measureVBAT());
@@ -65,7 +66,7 @@ int main(void)
     Time_data alarmTime = Time;
     // alarmTime.seconds += 10;
     // alarmTime.minutes += 30;
-    alarmTime.hours +=24;
+    alarmTime.hours +=1;
     char isCard = 0;
   
     printf("Init...\r\n");
@@ -107,7 +108,7 @@ int main(void)
         {
             file_cat();
         }
-        
+        logtest(999);
     }
     else 
     {

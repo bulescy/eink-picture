@@ -7,5 +7,4 @@ void ledCharging(void);
 void ledCharged(void);
 void powerOff(void);
 
-
 #endif

@@ -51,13 +51,13 @@ void CALENDAR_Draw()
 {
     // Paint_DrawBitMap(Image7color);
     Paint_SetRotate(270);
-    Paint_DrawString_EN(10, 10, "this is a calendar.", &Font16, EPD_7IN3F_BLACK, EPD_7IN3F_WHITE);
+    Paint_DrawString_EN(10, 100, "this is a calendar.", &Font16, EPD_7IN3F_BLACK, EPD_7IN3F_WHITE);
 
     Time_data T;
     T = PCF85063_GetTime();
     printf("%d-%d-%d %d:%d:%d\r\n",T.years,T.months,T.days,T.hours,T.minutes,T.seconds);
     char str_temp[64] = {0};
-    sprintf(str_temp, "%d-%d-%d %d:%d:%d\r\n",
+    sprintf(str_temp, "%d-%d-%d %d:%d:%d",
             gstCalendar.now.years,
             gstCalendar.now.months,
             gstCalendar.now.days,
@@ -65,7 +65,21 @@ void CALENDAR_Draw()
             gstCalendar.now.minutes,
             gstCalendar.now.seconds);
 
-    Paint_DrawString_EN(10, 50, str_temp, &Font16, EPD_7IN3F_RED, EPD_7IN3F_WHITE);
+    Paint_DrawString_EN(10, 150, str_temp, &Font16, EPD_7IN3F_RED, EPD_7IN3F_WHITE);
+
+    int offset_y = 400, height = 20;
+    memset(str_temp, 0, 64);
+    sprintf(str_temp, "VBUS: %d", DEV_Digital_Read(VBUS));
+    Paint_DrawString_EN(10, offset_y, str_temp, &Font16, EPD_7IN3F_RED, EPD_7IN3F_WHITE);
+
+    memset(str_temp, 0, 64);
+    sprintf(str_temp, "RTC_INT: %d", DEV_Digital_Read(RTC_INT));
+    Paint_DrawString_EN(10, offset_y+height, str_temp, &Font16, EPD_7IN3F_RED, EPD_7IN3F_WHITE);
+
+    memset(str_temp, 0, 64);
+    sprintf(str_temp, "CHARGE_STATE: %d", DEV_Digital_Read(CHARGE_STATE));
+    Paint_DrawString_EN(10, offset_y+height*2, str_temp, &Font16, EPD_7IN3F_RED, EPD_7IN3F_WHITE);
+//当接电源的时候 110 ，不接 011
 
     printf("EPD_Display\r\n");
     EPD_7IN3F_Display(gstCalendar.image);

@@ -850,4 +850,20 @@ void file_sort()
 }
 
 
+void logtest(int value)
+{
+    run_mount();
+    FIL fil;
+    FRESULT f_return = FR_OK;
+    UINT written = 0;
+    char tmp[20] = {0};
+    f_return =  f_open(&fil, "testlog.log", FA_OPEN_APPEND | FA_WRITE);
+    f_write(&fil, "hello\n", 6, &written);
+    sprintf(tmp, "written: %d\n", written);
+    f_write(&fil, tmp, strlen(tmp), &written);
+    f_printf(&fil, "hello\nworld\nvalue %d\n", value);
+    f_close(&fil);
 
+    run_unmount();
+
+}

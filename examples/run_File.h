@@ -22,4 +22,6 @@ void setFilePath(void);
 void updatePathIndex(void);
 void file_sort();
 
+void logtest(int value);
+
 #endif
