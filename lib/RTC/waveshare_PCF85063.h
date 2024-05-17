@@ -31,6 +31,7 @@ typedef struct{
   UWORD hours;
   UWORD minutes;
   UWORD seconds;
+  UWORD weeks;
 }Time_data;
 
 int DecToBcd(int val);

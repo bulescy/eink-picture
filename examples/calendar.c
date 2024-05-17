@@ -57,13 +57,14 @@ void CALENDAR_Draw()
     T = PCF85063_GetTime();
     printf("%d-%d-%d %d:%d:%d\r\n",T.years,T.months,T.days,T.hours,T.minutes,T.seconds);
     char str_temp[64] = {0};
-    sprintf(str_temp, "%d-%d-%d %d:%d:%d",
+    sprintf(str_temp, "%d-%d-%d %d:%d:%d %d",
             gstCalendar.now.years,
             gstCalendar.now.months,
             gstCalendar.now.days,
             gstCalendar.now.hours,
             gstCalendar.now.minutes,
-            gstCalendar.now.seconds);
+            gstCalendar.now.seconds,
+			gstCalendar.now.weeks);
 
     Paint_DrawString_EN(10, 150, str_temp, &Font16, EPD_7IN3F_RED, EPD_7IN3F_WHITE);
 

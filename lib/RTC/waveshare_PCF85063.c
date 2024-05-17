@@ -113,6 +113,7 @@ void PCF85063_GetTimeNow(Time_data * pTime)
 	pTime->hours = BcdToDec(PCF85063_Read_Byte(HOURS_REG)&0x3F);
 	pTime->minutes = BcdToDec(PCF85063_Read_Byte(MINUTES_REG)&0x7F);
 	pTime->seconds = BcdToDec(PCF85063_Read_Byte(SECONDS_REG)&0x7F);
+	pTime->weeks = BcdToDec(PCF85063_Read_Byte(WEEKDAYS_REG));
 }
 
 
