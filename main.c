@@ -56,13 +56,16 @@ void run_display(Time_data Time, Time_data alarmTime, char hasCard)
         CALENDAR_Test();
     }
 
+    Time_data target = {0};
+    target.hours = 1;
     PCF85063_clear_alarm_flag();    // clear RTC alarm flag
-    rtcRunAlarm(Time, alarmTime);  // RTC run alarm
+    // rtcRunAlarm(Time, alarmTime);  // RTC run alarm
+    rtcSetAlarm(target);
 }
 
 int main(void)
 {
-    Time_data Time = {2024-2000, 3, 31, 0, 0, 0};
+    Time_data Time = {24, 5, 21, 0, 25, 0, 2};
     Time_data alarmTime = Time;
     // alarmTime.seconds += 10;
     // alarmTime.minutes += 30;
@@ -76,8 +79,8 @@ int main(void)
     
     watchdog_enable(8*1000, 1);    // 8s
     DEV_Delay_ms(1000);
-    PCF85063_init();    // RTC init
-    rtcRunAlarm(Time, alarmTime);  // RTC run alarm
+    // PCF85063_init();    // RTC init
+    // rtcRunAlarm(Time, alarmTime);  // RTC run alarm
     gpio_set_irq_enabled_with_callback(CHARGE_STATE, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, chargeState_callback);
 
     if(measureVBAT() < 3.1) {   // battery power is low

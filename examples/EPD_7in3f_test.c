@@ -34,6 +34,7 @@
 #include "EPD_7in3f.h"
 #include "GUI_Paint.h"
 #include "GUI_BMPfile.h"
+#include "waveshare_PCF85063.h"
 
 #include <stdlib.h> // malloc() free()
 #include <string.h>
@@ -72,6 +73,22 @@ int EPD_7in3f_display_BMP(const char *path, float vol)
     if(vol < 3.3) {
         Paint_DrawString_EN(10, 10, "Low voltage, please charge in time.", &Font16, EPD_7IN3F_BLACK, EPD_7IN3F_WHITE);
         Paint_DrawString_EN(10, 26, strvol, &Font16, EPD_7IN3F_BLACK, EPD_7IN3F_WHITE);
+    }
+
+    {
+    Time_data tmp_now;
+    PCF85063_GetTimeNow(&tmp_now);
+    char str_temp[64] = {0};
+    sprintf(str_temp, "%d-%d-%d %d:%d:%d %d",
+            tmp_now.years,
+            tmp_now.months,
+            tmp_now.days,
+            tmp_now.hours,
+            tmp_now.minutes,
+            tmp_now.seconds,
+			tmp_now.weeks);
+
+    Paint_DrawString_EN(10, 150, str_temp, &Font16, EPD_7IN3F_RED, EPD_7IN3F_WHITE);
     }
 
     printf("EPD_Display\r\n");

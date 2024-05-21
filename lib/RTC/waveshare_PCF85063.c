@@ -220,3 +220,37 @@ void rtcRunAlarm(Time_data time, Time_data alarmTime)
 
     PCF85063_alarm_Time_Enabled(alarmTime);
 }
+
+void rtcSetAlarm(Time_data alarmTime)
+{
+    Time_data now;
+    Time_data alarm;
+    PCF85063_GetTimeNow(&now);
+
+    alarm.seconds = alarmTime.seconds + now.seconds;
+    alarm.minutes = alarmTime.minutes + now.minutes;
+    alarm.hours = alarmTime.hours + now.hours;
+    alarm.days = alarmTime.days + now.days;
+    alarm.months = alarmTime.months + now.months;
+    alarm.years = alarmTime.years + now.years;
+
+    PCF85063_alarm_Time_Enabled(alarm);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
