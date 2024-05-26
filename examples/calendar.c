@@ -12,50 +12,30 @@
 
 
 struct calendar_s {
-    PAINT paint;
     UBYTE * image;
     Time_data now;
-
 };
 struct calendar_s gstCalendar;
 
 
 void CALENDAR_Init()
 {
-    printf("CALENDAR Init and Clear...\r\n");
-    EPD_7IN3F_Init();
+    Time_data now = {24, 5, 26, 15, 45, 0, 6};
+    rtcSetTime(&now);
 }
 
 
 void CALENDAR_Open()
 {
-    UDOUBLE Imagesize = ((EPD_7IN3F_WIDTH % 2 == 0)? (EPD_7IN3F_WIDTH / 2 ): (EPD_7IN3F_WIDTH / 2 + 1)) * EPD_7IN3F_HEIGHT;
-    gstCalendar.image = (UBYTE *)malloc(Imagesize);
-
-    if(gstCalendar.image == NULL) {
-        printf("Failed to alloc memory...\r\n");
-        return;
-    }
-    printf("CALENDAR_Open ok\r\n");
-    Paint_NewImage(gstCalendar.image, EPD_7IN3F_WIDTH, EPD_7IN3F_HEIGHT, 0, EPD_7IN3F_WHITE);
-    Paint_SetScale(7);
-    printf("Display BMP\r\n");
-    Paint_SelectImage(gstCalendar.image);
-    Paint_Clear(EPD_7IN3F_WHITE);
-
-    PCF85063_GetTimeNow(&gstCalendar.now);
 }
 
 
 void CALENDAR_Draw()
 {
-    // Paint_DrawBitMap(Image7color);
+    PCF85063_GetTimeNow(&gstCalendar.now);
     Paint_SetRotate(270);
     Paint_DrawString_EN(10, 100, "this is a calendar.", &Font16, EPD_7IN3F_BLACK, EPD_7IN3F_WHITE);
 
-    Time_data T;
-    T = PCF85063_GetTime();
-    printf("%d-%d-%d %d:%d:%d\r\n",T.years,T.months,T.days,T.hours,T.minutes,T.seconds);
     char str_temp[64] = {0};
     sprintf(str_temp, "%d-%d-%d %d:%d:%d %d",
             gstCalendar.now.years,
@@ -81,19 +61,11 @@ void CALENDAR_Draw()
     sprintf(str_temp, "CHARGE_STATE: %d", DEV_Digital_Read(CHARGE_STATE));
     Paint_DrawString_EN(10, offset_y+height*2, str_temp, &Font16, EPD_7IN3F_RED, EPD_7IN3F_WHITE);
 //当接电源的时候 110 ，不接 011
-
-    printf("EPD_Display\r\n");
-    EPD_7IN3F_Display(gstCalendar.image);
 }
 
 
 void CALENDAR_Close()
 {
-    printf("Goto Sleep...\r\n\r\n");
-    EPD_7IN3F_Sleep();
-    if (gstCalendar.image != NULL) {
-        free(gstCalendar.image);
-    }
 }
 
 void CALENDAR_Deinit()

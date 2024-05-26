@@ -237,6 +237,14 @@ void rtcSetAlarm(Time_data alarmTime)
     PCF85063_alarm_Time_Enabled(alarm);
 }
 
+void rtcSetTime(Time_data *pTime)
+{
+    PCF85063_SetTime_HMS(pTime->hours, pTime->minutes, pTime->seconds);
+	PCF85063_SetTime_YMD(pTime->years, pTime->months, pTime->days);
+	PCF85063_Write_Byte(WEEKDAYS_REG, DecToBcd(pTime->weeks)&0x7F);
+}
+
+
 
 
 

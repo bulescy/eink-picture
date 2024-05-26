@@ -157,9 +157,20 @@ void eink_display()
     DISPLAY_Open();
 
     PICTURE_Draw();
+    // CALENDAR_Init();
+    CALENDAR_Draw();
+
+
 
     DISPLAY_Draw();
     DISPLAY_Close();
+
+
+    Time_data target = {0};
+    target.hours = 1;
+    PCF85063_clear_alarm_flag();    // clear RTC alarm flag
+    // rtcRunAlarm(Time, alarmTime);  // RTC run alarm
+    rtcSetAlarm(target);
 }
 
 

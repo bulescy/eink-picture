@@ -47,6 +47,7 @@ void PCF85063_clear_alarm_flag();
 void PCF85063_test();
 void rtcRunAlarm(Time_data time, Time_data alarmTime);
 
+void rtcSetTime(Time_data *pTime);
 void PCF85063_GetTimeNow(Time_data * pTime);
 void rtcSetAlarm(Time_data alarmTime);
 #endif
