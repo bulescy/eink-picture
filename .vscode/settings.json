@@ -16,6 +16,7 @@
         "f_util.h": "c",
         "stdlib.h": "c",
         "type_traits": "c",
-        "ini.h": "c"
+        "ini.h": "c",
+        "debug.h": "c"
     }
 }

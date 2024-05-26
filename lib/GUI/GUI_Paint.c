@@ -612,7 +612,55 @@ void Paint_DrawString_EN(UWORD Xstart, UWORD Ystart, const char * pString,
     }
 }
 
+void PrintString(const char * pString)
+{
+    UWORD text_width = 400;
+    UWORD text_height = 200;
+    UWORD text_x_start = 0;
+    UWORD text_y_start = 0;
 
+    static UWORD x_pos = 0;
+    static UWORD y_pos = 0;
+    
+    UWORD Xpoint = x_pos;
+    UWORD Ypoint = y_pos;
+    sFONT* Font = &Font16;
+
+    UWORD Color_Foreground = 0x0; //EPD_7IN3F_BLACK
+    UWORD Color_Background = 0x1; //EPD_7IN3F_WHITE
+    while (* pString != '\0') {
+        if (*pString == '\n') {
+            Xpoint = text_x_start;
+            Ypoint += Font->Height;
+            pString ++;
+
+            x_pos = Xpoint;
+            y_pos = Ypoint;
+            continue;
+        }
+
+        if ((Xpoint + Font->Width ) > text_width) {
+            Xpoint = text_x_start;
+            Ypoint += Font->Height;
+        }
+
+        if ((Ypoint  + Font->Height ) > text_height) {
+            Xpoint = text_x_start;
+            Ypoint = text_y_start;
+        }
+        Paint_DrawChar(Xpoint, Ypoint, *pString, Font, Color_Background, Color_Foreground);
+        pString ++;
+        Xpoint += Font->Width;
+
+        x_pos = Xpoint;
+        y_pos = Ypoint;
+    }
+}
+void PrintStringFormat(const char * pString)
+{
+    char str_buf[128];
+
+}
 /******************************************************************************
 function: Display the string
 parameter:

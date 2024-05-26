@@ -84,12 +84,18 @@ void CALENDAR_Open()
 
 void CALENDAR_Draw()
 {
-    PCF85063_GetTimeNow(&gstCalendar.now);
-    Paint_SetRotate(270);
-    Paint_DrawString_EN(10, 100, "this is a calendar.", &Font16, EPD_7IN3F_BLACK, EPD_7IN3F_WHITE);
-
     char str_temp[64] = {0};
-    sprintf(str_temp, "%d-%d-%d %d:%d:%d %d",
+    UWORD rotate = ROTATE_180;
+
+    PCF85063_GetTimeNow(&gstCalendar.now);
+    Paint_SetRotate(rotate);
+
+    memset(str_temp, 0, 64);
+    sprintf(str_temp, "this is a calendar, rotate: %d\n", rotate);
+    PrintString(str_temp);
+
+    memset(str_temp, 0, 64);
+    sprintf(str_temp, "%d-%d-%d %d:%d:%d %d\n",
             gstCalendar.now.years,
             gstCalendar.now.months,
             gstCalendar.now.days,
@@ -97,21 +103,19 @@ void CALENDAR_Draw()
             gstCalendar.now.minutes,
             gstCalendar.now.seconds,
 			gstCalendar.now.weeks);
-
-    Paint_DrawString_EN(10, 150, str_temp, &Font16, EPD_7IN3F_RED, EPD_7IN3F_WHITE);
-
-    int offset_y = 400, height = 20;
-    memset(str_temp, 0, 64);
-    sprintf(str_temp, "VBUS: %d", DEV_Digital_Read(VBUS));
-    Paint_DrawString_EN(10, offset_y, str_temp, &Font16, EPD_7IN3F_RED, EPD_7IN3F_WHITE);
+    PrintString(str_temp);
 
     memset(str_temp, 0, 64);
-    sprintf(str_temp, "RTC_INT: %d", DEV_Digital_Read(RTC_INT));
-    Paint_DrawString_EN(10, offset_y+height, str_temp, &Font16, EPD_7IN3F_RED, EPD_7IN3F_WHITE);
+    sprintf(str_temp, "VBUS: %d\n", DEV_Digital_Read(VBUS));
+    PrintString(str_temp);
 
     memset(str_temp, 0, 64);
-    sprintf(str_temp, "CHARGE_STATE: %d", DEV_Digital_Read(CHARGE_STATE));
-    Paint_DrawString_EN(10, offset_y+height*2, str_temp, &Font16, EPD_7IN3F_RED, EPD_7IN3F_WHITE);
+    sprintf(str_temp, "RTC_INT: %d\n", DEV_Digital_Read(RTC_INT));
+    PrintString(str_temp);
+
+    memset(str_temp, 0, 64);
+    sprintf(str_temp, "CHARGE_STATE: %d\n", DEV_Digital_Read(CHARGE_STATE));
+    PrintString(str_temp);
 //当接电源的时候 110 ，不接 011
 
     if (FS_isSdCardMounted() == true)
