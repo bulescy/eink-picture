@@ -9,6 +9,7 @@
 #include "calendar.h"
 
 #include <time.h>
+#include "ini.h"
 
 extern const char *fileList;
 extern char pathName[];
@@ -160,8 +161,6 @@ void eink_display()
     // CALENDAR_Init();
     CALENDAR_Draw();
 
-
-
     DISPLAY_Draw();
     DISPLAY_Close();
 
@@ -224,6 +223,7 @@ int main()
     }
 
     //DISPLAY_Close();
+    FS_DeInit();
     printf("power off ...\r\n");
     powerOff(); // BAT off
 
