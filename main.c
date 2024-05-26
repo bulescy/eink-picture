@@ -5,6 +5,7 @@
 #include "waveshare_PCF85063.h" // RTC
 #include "DEV_Config.h"
 
+#include "picture.h"
 #include "calendar.h"
 
 #include <time.h>
@@ -62,7 +63,7 @@ void run_display(Time_data Time, Time_data alarmTime, char hasCard)
     // rtcRunAlarm(Time, alarmTime);  // RTC run alarm
     rtcSetAlarm(target);
 }
-
+#if 0
 int main(void)
 {
     Time_data Time = {24, 5, 21, 0, 25, 0, 2};
@@ -146,3 +147,77 @@ int main(void)
 
     return 0;
 }
+
+
+#else
+void eink_display()
+{
+    EPD_Init();
+
+    DISPLAY_Open();
+
+    PICTURE_Draw();
+
+    DISPLAY_Draw();
+    DISPLAY_Close();
+}
+
+
+int main()
+{
+    printf("Init...\r\n");
+    if(DEV_Module_Init() != 0) {  // DEV init
+        return -1;
+    }
+    
+    watchdog_enable(8*1000, 1);    // 8s
+    DEV_Delay_ms(1000);
+    gpio_set_irq_enabled_with_callback(CHARGE_STATE, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, chargeState_callback);
+
+    if(measureVBAT() < 3.1) {   // battery power is low
+        printf("low power ...\r\n");
+        PCF85063_alarm_Time_Disable();
+        ledLowPower();  // LED flash for Low power
+        powerOff(); // BAT off
+        return 0;
+    }
+    else {
+        printf("work ...\r\n");
+        ledPowerOn();
+    }
+
+    FS_Init();
+
+
+    if(!DEV_Digital_Read(VBUS)) {    // no charge state
+        eink_display();
+    }
+    else {  // charge state
+        chargeState_callback();
+        while(DEV_Digital_Read(VBUS)) {
+            measureVBAT();
+            
+            #if enChargingRtc
+            if(!DEV_Digital_Read(RTC_INT)) {    // RTC interrupt trigger
+                printf("rtc interrupt\r\n");
+                run_display(Time, alarmTime, isCard);
+            }
+            #endif
+
+            if(!DEV_Digital_Read(BAT_STATE)) {  // KEY pressed
+                printf("key interrupt\r\n");
+                eink_display();
+            }
+            DEV_Delay_ms(200);
+        }
+    }
+
+    //DISPLAY_Close();
+    printf("power off ...\r\n");
+    powerOff(); // BAT off
+
+    return 0;
+
+}
+
+#endif

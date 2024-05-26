@@ -9,6 +9,12 @@
         "epd_7in3f.h": "c",
         "gui_bmpfile.h": "c",
         "time.h": "c",
-        "waveshare_pcf85063.h": "c"
+        "waveshare_pcf85063.h": "c",
+        "calendar.h": "c",
+        "stdint.h": "c",
+        "cstdint": "c",
+        "f_util.h": "c",
+        "stdlib.h": "c",
+        "type_traits": "c"
     }
 }

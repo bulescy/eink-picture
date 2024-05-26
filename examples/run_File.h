@@ -6,7 +6,7 @@
 #define fileNumber 100
 #define fileLen 100
 
-char sdTest(void);
+uint8_t sdTest(void);
 void sdInitTest(void);
 
 void run_mount(void);
@@ -24,4 +24,10 @@ void file_sort();
 
 void logtest(int value);
 
+
+
+int8_t FS_Init();
+int8_t FS_DeInit();
+bool FS_isSdCardMounted();
+bool FS_isFileExist(const char *filename);
 #endif

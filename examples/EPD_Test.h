@@ -30,10 +30,19 @@
 #ifndef _EPD_TEST_H_
 #define _EPD_TEST_H_
 
+#include "DEV_Config.h"
 int EPD_7in3f_test(void);
 
 int EPD_7in3f_display(float vol);
 int EPD_7in3f_display_BMP(const char *path, float vol);
+
+
+int8_t EPD_Init();
+
+int8_t DISPLAY_Open();
+int8_t DISPLAY_Close();
+int8_t DISPLAY_Draw();
+int8_t DISPLAY_GetImage(UBYTE ** pimage);
 
 
 #endif

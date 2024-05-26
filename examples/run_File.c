@@ -7,6 +7,8 @@
 #include <stdlib.h> // malloc() free()
 #include <string.h>
 
+sd_card_t *pstSDHandle = NULL;
+
 const char *fileList = "fileList.txt";          // Picture names store files
 const char *fileListNew = "fileListNew.txt";    // Sort good picture name temporarily store file
 char pathName[fileLen];                         // The name of the picture to display
@@ -273,7 +275,7 @@ void sdInitTest(void)
     parameter: 
         none
 */
-char sdTest(void)
+uint8_t sdTest(void)
 {
     sd_card_t *pSD = sd_get_by_num(0);
     FRESULT fr = f_mount(&pSD->fatfs, pSD->pcName, 1);
@@ -867,3 +869,65 @@ void logtest(int value)
     run_unmount();
 
 }
+
+
+
+int8_t FS_Init()
+{
+    int8_t ret = 0;
+
+    sd_card_t *pSD = sd_get_by_num(0);
+    FRESULT fs_ret = f_mount(&pSD->fatfs, pSD->pcName, 1);
+
+    if (fs_ret != FR_OK) {
+        ret = -1;
+        printf("%s err, fs_ret: %d\n", __func__, fs_ret);
+        return ret;
+    }
+    pstSDHandle = pSD;
+    pstSDHandle->mounted = true;
+
+    return ret;
+}
+
+int8_t FS_DeInit()
+{
+    int8_t ret = 0;
+    FRESULT fs_ret = FR_OK;
+
+    if (pstSDHandle->mounted == true) {
+        fs_ret = f_unmount(pstSDHandle->pcName);
+        if (fs_ret != FR_OK) {
+            ret = -1;
+            printf("%s err, fs_ret: %d\n", __func__, fs_ret);
+            return ret;
+        }
+        pstSDHandle->mounted = false;
+    }
+
+    return ret;
+}
+
+bool FS_isSdCardMounted()
+{
+    if (pstSDHandle) 
+        return pstSDHandle->mounted;
+    else
+        return false;
+}
+
+bool FS_isFileExist(const char *filename)
+{
+    FRESULT fr; /* Return value */
+    FIL fil;
+
+    fr =  f_open(&fil, filename, FA_READ);
+    if(FR_OK != fr && FR_EXIST != fr) {
+        printf("%s is not exist\r\n", filename);
+        return false;
+    }
+    f_close(&fil);
+
+    return true;
+}
+

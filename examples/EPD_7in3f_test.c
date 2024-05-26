@@ -39,6 +39,15 @@
 #include <stdlib.h> // malloc() free()
 #include <string.h>
 
+struct Display_s{
+    PAINT paint;
+    UBYTE * image;
+
+};
+
+struct Display_s gstDisp;
+
+
 int EPD_7in3f_display_BMP(const char *path, float vol)
 {
     printf("e-Paper Init and Clear...\r\n");
@@ -200,3 +209,53 @@ int EPD_7in3f_test(void)
     return 0;
 }
 
+int8_t EPD_Init()
+{
+    printf("CALENDAR Init and Clear...\r\n");
+    EPD_7IN3F_Init();
+    return 0;
+}
+
+int8_t DISPLAY_Open()
+{
+    UDOUBLE Imagesize = ((EPD_7IN3F_WIDTH % 2 == 0)? (EPD_7IN3F_WIDTH / 2 ): (EPD_7IN3F_WIDTH / 2 + 1)) * EPD_7IN3F_HEIGHT;
+    gstDisp.image = (UBYTE *)malloc(Imagesize);
+
+    if(gstDisp.image == NULL) {
+        printf("Failed to alloc memory...\r\n");
+        return -1;
+    }
+    printf("%s ok\n", __func__);
+    Paint_NewImage(gstDisp.image, EPD_7IN3F_WIDTH, EPD_7IN3F_HEIGHT, 0, EPD_7IN3F_WHITE);
+    Paint_SetScale(7);
+    printf("Display BMP\r\n");
+    Paint_SelectImage(gstDisp.image);
+    Paint_Clear(EPD_7IN3F_WHITE);
+
+}
+
+int8_t DISPLAY_Close()
+{
+    printf("Goto Sleep...\r\n\r\n");
+    EPD_7IN3F_Sleep();
+    if (gstDisp.image != NULL) {
+        free(gstDisp.image);
+    }
+
+    return 0;
+}
+
+int8_t DISPLAY_Draw()
+{
+    printf("EPD_Display\r\n");
+    EPD_7IN3F_Display(gstDisp.image);
+
+    return 0;
+}
+
+int8_t DISPLAY_GetImage(UBYTE ** pimage)
+{
+    if (gstDisp.image != NULL)
+        *pimage = gstDisp.image;
+    return 0;
+}
