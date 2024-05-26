@@ -602,7 +602,7 @@ void Paint_DrawString_EN(UWORD Xstart, UWORD Ystart, const char * pString,
             Xpoint = Xstart;
             Ypoint = Ystart;
         }
-        Paint_DrawChar(Xpoint, Ypoint, * pString, Font, Color_Background, Color_Foreground);
+        Paint_DrawChar(Xpoint, Ypoint, * pString, Font, Color_Foreground, Color_Background);
 
         //The next character of the address
         pString ++;
@@ -626,8 +626,8 @@ void PrintString(const char * pString)
     UWORD Ypoint = y_pos;
     sFONT* Font = &Font16;
 
-    UWORD Color_Foreground = 0x0; //EPD_7IN3F_BLACK
-    UWORD Color_Background = 0x1; //EPD_7IN3F_WHITE
+    UWORD Color_Foreground = 0x0; //black
+    UWORD Color_Background = 0xff;
     while (* pString != '\0') {
         if (*pString == '\n') {
             Xpoint = text_x_start;
@@ -648,7 +648,7 @@ void PrintString(const char * pString)
             Xpoint = text_x_start;
             Ypoint = text_y_start;
         }
-        Paint_DrawChar(Xpoint, Ypoint, *pString, Font, Color_Background, Color_Foreground);
+        Paint_DrawChar(Xpoint, Ypoint, *pString, Font, Color_Foreground, Color_Background);
         pString ++;
         Xpoint += Font->Width;
 

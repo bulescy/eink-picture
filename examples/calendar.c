@@ -71,8 +71,7 @@ void CALENDAR_GetConfig()
     }
     sprintf(str_buf, "Config loaded from ini: version=%d, mode=%d name=%s",
         config.version, config.mode, config.name);
-
-    Paint_DrawString_EN(10, 600, str_buf, &Font16, EPD_7IN3F_BLACK, EPD_7IN3F_WHITE);
+    PrintString(str_buf);
     if (config.name)
         free((void*)config.name);
 }

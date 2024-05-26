@@ -17,6 +17,7 @@
         "stdlib.h": "c",
         "type_traits": "c",
         "ini.h": "c",
-        "debug.h": "c"
+        "debug.h": "c",
+        "fonts.h": "c"
     }
 }
