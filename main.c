@@ -46,111 +46,7 @@ void chargeState_callback()
     }
 }
 
-void run_display(Time_data Time, Time_data alarmTime, char hasCard)
-{
-    if(hasCard) {
-        setFilePath();
-        EPD_7in3f_display_BMP(pathName, measureVBAT());   // display bmp
-        logtest(1);
-    }
-    else {
-        // EPD_7in3f_display(measureVBAT());
-        CALENDAR_Test();
-    }
 
-    Time_data target = {0};
-    target.hours = 1;
-    PCF85063_clear_alarm_flag();    // clear RTC alarm flag
-    // rtcRunAlarm(Time, alarmTime);  // RTC run alarm
-    rtcSetAlarm(target);
-}
-#if 0
-int main(void)
-{
-    Time_data Time = {24, 5, 21, 0, 25, 0, 2};
-    Time_data alarmTime = Time;
-    // alarmTime.seconds += 10;
-    // alarmTime.minutes += 30;
-    alarmTime.hours +=1;
-    char isCard = 0;
-  
-    printf("Init...\r\n");
-    if(DEV_Module_Init() != 0) {  // DEV init
-        return -1;
-    }
-    
-    watchdog_enable(8*1000, 1);    // 8s
-    DEV_Delay_ms(1000);
-    // PCF85063_init();    // RTC init
-    // rtcRunAlarm(Time, alarmTime);  // RTC run alarm
-    gpio_set_irq_enabled_with_callback(CHARGE_STATE, GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, chargeState_callback);
-
-    if(measureVBAT() < 3.1) {   // battery power is low
-        printf("low power ...\r\n");
-        PCF85063_alarm_Time_Disable();
-        ledLowPower();  // LED flash for Low power
-        powerOff(); // BAT off
-        return 0;
-    }
-    else {
-        printf("work ...\r\n");
-        ledPowerOn();
-    }
-
-    if(!sdTest()) 
-    {
-        isCard = 1;
-        if(Mode == 0)
-        {
-            sdScanDir();
-            file_sort();
-        }
-        if(Mode == 1)
-        {
-            sdScanDir();
-        }
-        if(Mode == 2)
-        {
-            file_cat();
-        }
-        logtest(999);
-    }
-    else 
-    {
-        isCard = 0;
-    }
-
-    if(!DEV_Digital_Read(VBUS)) {    // no charge state
-        run_display(Time, alarmTime, isCard);
-    }
-    else {  // charge state
-        chargeState_callback();
-        while(DEV_Digital_Read(VBUS)) {
-            measureVBAT();
-            
-            #if enChargingRtc
-            if(!DEV_Digital_Read(RTC_INT)) {    // RTC interrupt trigger
-                printf("rtc interrupt\r\n");
-                run_display(Time, alarmTime, isCard);
-            }
-            #endif
-
-            if(!DEV_Digital_Read(BAT_STATE)) {  // KEY pressed
-                printf("key interrupt\r\n");
-                run_display(Time, alarmTime, isCard);
-            }
-            DEV_Delay_ms(200);
-        }
-    }
-    
-    printf("power off ...\r\n");
-    powerOff(); // BAT off
-
-    return 0;
-}
-
-
-#else
 void eink_display()
 {
     EPD_Init();
@@ -231,4 +127,3 @@ int main()
 
 }
 
-#endif
