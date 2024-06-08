@@ -8,6 +8,7 @@
 // const char *fileList = "fileList.txt";          // Picture names store files
 // char pathName[fileLen];                         // The name of the picture to display
 // int scanFileNum = 0;                            // The number of images scanned
+char photoFramePath[] = "default.bmp";
 
 typedef struct picture_s
 {
@@ -216,6 +217,9 @@ void PICTURE_Draw()
         getCurrentFileName();
 
         GUI_ReadBmp_RGB_7Color(gstPicture.pathName, 0, 0);
+        if (FS_isFileExist(photoFramePath) == true) {
+            // GUI_ReadBmp_RGB_7Color_Photo_Frame(photoFramePath, 0, 0);
+        }
         updatePathIndexas();
     }
 }

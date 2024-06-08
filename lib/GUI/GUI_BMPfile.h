@@ -69,5 +69,5 @@ typedef struct RGB_QUAD {
 /**************************************** end ***********************************************/
 
 UBYTE GUI_ReadBmp_RGB_7Color(const char *path, UWORD Xstart, UWORD Ystart);
-
+UBYTE GUI_ReadBmp_RGB_7Color_Photo_Frame(const char *path, UWORD Xstart, UWORD Ystart);
 #endif

@@ -612,21 +612,23 @@ void Paint_DrawString_EN(UWORD Xstart, UWORD Ystart, const char * pString,
     }
 }
 
+const UWORD text_x_start_default = 0;
+const UWORD text_y_start_default = 240;
 void PrintString(const char * pString)
 {
-    UWORD text_width = 400;
-    UWORD text_height = 200;
-    UWORD text_x_start = 0;
-    UWORD text_y_start = 0;
+    UWORD text_x_start = text_x_start_default;
+    UWORD text_y_start = text_y_start_default;
+    UWORD text_width_bound = 200;
+    UWORD text_height_bound = 480;
 
-    static UWORD x_pos = 0;
-    static UWORD y_pos = 0;
+    static UWORD x_pos = text_x_start_default;
+    static UWORD y_pos = text_y_start_default;
     
     UWORD Xpoint = x_pos;
     UWORD Ypoint = y_pos;
     sFONT* Font = &Font16;
 
-    UWORD Color_Foreground = 0x0; //black
+    UWORD Color_Foreground = 0x0; //text color is black
     UWORD Color_Background = 0xff;
     while (* pString != '\0') {
         if (*pString == '\n') {
@@ -639,12 +641,12 @@ void PrintString(const char * pString)
             continue;
         }
 
-        if ((Xpoint + Font->Width ) > text_width) {
+        if ((Xpoint + Font->Width ) > text_width_bound) {
             Xpoint = text_x_start;
             Ypoint += Font->Height;
         }
 
-        if ((Ypoint  + Font->Height ) > text_height) {
+        if ((Ypoint  + Font->Height ) > text_height_bound) {
             Xpoint = text_x_start;
             Ypoint = text_y_start;
         }
