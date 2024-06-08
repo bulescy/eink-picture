@@ -618,7 +618,7 @@ void PrintString(const char * pString)
 {
     UWORD text_x_start = text_x_start_default;
     UWORD text_y_start = text_y_start_default;
-    UWORD text_width_bound = 200;
+    UWORD text_width_bound = 240;
     UWORD text_height_bound = 480;
 
     static UWORD x_pos = text_x_start_default;

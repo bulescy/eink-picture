@@ -137,8 +137,8 @@ hjz toLunar(hjz solar){
     int index,flag;
     hjz lunar;
     
-    //bySpring è®°å½•æ˜¥èŠ‚ç¦»å½“å¹´å…ƒæ—¦çš„å¤©æ•°ã€‚
-    //bySolar è®°å½•é˜³å†æ—¥ç¦»å½“å¹´å…ƒæ—¦çš„å¤©æ•°ã€‚
+    //bySpring è®°å½•æ˜¥èŠ‚ç¦»å½“å¹´å…ƒæ—¦çš„å¤©æ•°ã€?
+    //bySolar è®°å½•é˜³å†æ—¥ç?»å½“å¹´å…ƒæ—¦çš„å¤©æ•°ã€?
     if( ((lunar200y[year-1901] & 0x0060) >> 5) == 1)
         bySpring = (lunar200y[year-1901] & 0x001F) - 1;
     else
@@ -147,12 +147,12 @@ hjz toLunar(hjz solar){
     if( (!(year % 4)) && (month > 2))
         bySolar++;
     
-    //daysPerMonthè®°å½•å¤§å°æœˆçš„å¤©æ•° 29 æˆ–30
-    //index è®°å½•ä»å“ªä¸ªæœˆå¼€å§‹æ¥è®¡ç®—ã€‚
-    //flag æ˜¯ç”¨æ¥å¯¹é—°æœˆçš„ç‰¹æ®Šå¤„ç†ã€‚
+    //daysPerMonthè®°å½•å¤§å°æœˆçš„å¤©æ•° 29 æˆ?30
+    //index è®°å½•ä»å“ªä¸?æœˆå¼€å§‹æ¥è®¡ç®—ã€?
+    //flag æ˜?ç”¨æ¥å¯¹é—°æœˆçš„ç‰¹æ®Šå¤„ç†ã€?
     
-    //åˆ¤æ–­é˜³å†æ—¥åœ¨æ˜¥èŠ‚å‰è¿˜æ˜¯æ˜¥èŠ‚å
-    if (bySolar >= bySpring) {//é˜³å†æ—¥åœ¨æ˜¥èŠ‚åï¼ˆå«æ˜¥èŠ‚é‚£å¤©ï¼‰
+    //åˆ¤æ–­é˜³å†æ—¥åœ¨æ˜¥èŠ‚å‰è¿˜æ˜?æ˜¥èŠ‚å?
+    if (bySolar >= bySpring) {//é˜³å†æ—¥åœ¨æ˜¥èŠ‚åï¼ˆå?æ˜¥èŠ‚é‚£å¤©ï¼?
         bySolar -= bySpring;
         month = 1;
         index = 1;
@@ -178,7 +178,7 @@ hjz toLunar(hjz solar){
         }
         day = bySolar + 1;
     }
-    else {//é˜³å†æ—¥åœ¨æ˜¥èŠ‚å‰
+    else {//é˜³å†æ—¥åœ¨æ˜¥èŠ‚å‰?
         bySpring -= bySolar;
         year--;
         month = 12;
@@ -249,8 +249,17 @@ void CALENDAR_Open()
 void _draw_date()
 {
 #define MAX_STR_LENGTH 64
-    char * week_map[7] = {"Monday", "Tuesday", "Wednesday",
+    const char *week_map[7] = {"Monday", "Tuesday", "Wednesday",
                           "Thursday", "Friday", "Saturday", "Sunday"};
+    const char *ChDay[] = {"*","³õÒ»","³õ¶ş","³õÈı","³õËÄ","³õÎå",
+        "³õÁù","³õÆß","³õ°Ë","³õ¾Å","³õÊ®",
+        "Ê®Ò»","Ê®¶ş","Ê®Èı","Ê®ËÄ","Ê®Îå",
+        "Ê®Áù","Ê®Æß","Ê®°Ë","Ê®¾Å","¶şÊ®",
+        "Ø¥Ò»","Ø¥¶ş","Ø¥Èı","Ø¥ËÄ","Ø¥Îå",
+        "Ø¥Áù","Ø¥Æß","Ø¥°Ë","Ø¥¾Å","ÈıÊ®"};
+    const char *ChMonth[] = {"*","ÕıÔÂ","¶şÔÂ","ÈıÔÂ","ËÄÔÂ","ÎåÔÂ","ÁùÔÂ","ÆßÔÂ",
+                                "°ËÔÂ","¾ÅÔÂ","Ê®ÔÂ","Ê®Ò»ÔÂ","À°ÔÂ"};
+
     char str_temp[MAX_STR_LENGTH] = {0};
     int x = 0;
     int y = 0;
@@ -270,20 +279,15 @@ void _draw_date()
 
     Paint_DrawString_EN(0, 60, week_map[gstCalendar.now.weeks], &Font24, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
 
-//  æ˜¾ç¤ºé˜´å†
+
     hjz osolar = {0};
     osolar.year = 2000+gstCalendar.now.years;
     osolar.month = gstCalendar.now.months;
     osolar.day = gstCalendar.now.days;
     hjz lunar = toLunar(osolar);
 
-    memset(str_temp, 0, MAX_STR_LENGTH);
-    sprintf(str_temp, "%d-%d-%d",
-            lunar.year,
-            lunar.month,
-            lunar.day);
-    Paint_DrawString_EN(0, 90, str_temp, &Font20, EPD_7IN3F_BLACK, EPD_7IN3F_TEXT_TRANSPARENT);
-
+    Paint_DrawString_CN(0, 90, ChMonth[lunar.month], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
+    Paint_DrawString_CN(40, 90, ChDay[lunar.day], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
 }
 
 void _debug_info()
@@ -304,7 +308,7 @@ void _debug_info()
     // memset(str_temp, 0, 64);
     // sprintf(str_temp, "CHARGE_STATE: %d\n", DEV_Digital_Read(CHARGE_STATE));
     // PrintString(str_temp);
-//å½“æ¥ç”µæºçš„æ—¶å€™ 110 ï¼Œä¸æ¥ 011
+//å½“æ¥ç”µæºçš„æ—¶å€? 110 ï¼Œä¸æ? 011
 
 }
 
@@ -318,6 +322,50 @@ void _low_power_check(void *pdata)
         memset(str_temp, 0, 64);
         sprintf(str_temp, "\nvoltage: %.2f, low power, please charge in time\n", *pVoltage);
         PrintString(str_temp);
+    }
+}
+
+void _draw_date_full_month()
+{
+    char str_temp[64] = {0};
+    UBYTE days_in_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    bool is_leap_year = false;
+    UWORD years_now = 2000 + gstCalendar.now.years;
+    UWORD months_now = gstCalendar.now.months;
+    UWORD days_now = gstCalendar.now.days;
+    UWORD weeks_now = gstCalendar.now.weeks;
+
+    // Check for leap year
+    if ((years_now % 4 == 0 && years_now % 100 != 0) || (years_now % 400 == 0)) {
+        days_in_month[1] = 29; // February has 29 days in a leap year
+    }
+
+    int first_weekday = (7 - ((days_now - 1) % 7) + weeks_now) % 7;
+    int days = days_in_month[months_now - 1];   // Number of days in the month
+    memset(str_temp, 0, 64);
+    sprintf(str_temp, "     %d-%02d\nMo Tu We Th Fr Sa Su\n", years_now, months_now);
+    PrintString(str_temp);
+
+    for (int i = 0; i < first_weekday; i++) {
+        sprintf(str_temp, "   ");
+        PrintString(str_temp);
+    }
+
+    for (int day = 1; day <= days; day++) {
+        memset(str_temp, 0, 64);
+        sprintf(str_temp, "%2d ", day);
+        if (day == days_now) {
+            memset(str_temp, 0, 64);
+            sprintf(str_temp, "xx ");
+            PrintString(str_temp);
+        } else {
+            PrintString(str_temp);
+        }
+        if ((day + first_weekday) % 7 == 0) {
+            memset(str_temp, 0, 64);
+            sprintf(str_temp, "\n");
+            PrintString(str_temp);
+        }
     }
 }
 
@@ -336,6 +384,7 @@ void CALENDAR_work(void *pdata)
 
     _draw_date();
     _special_day();
+    _draw_date_full_month();
 
     _debug_info();
     _low_power_check(pdata);
