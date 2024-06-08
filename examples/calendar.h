@@ -4,7 +4,7 @@
 typedef struct calendar_s calendar_t;
 
 void CALENDAR_Init();
-void CALENDAR_Draw();
+void CALENDAR_work(void *pdata);
 void CALENDAR_Test();
 
 #endif

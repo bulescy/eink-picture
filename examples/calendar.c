@@ -13,15 +13,17 @@
 
 struct calendar_s {
     UBYTE * image;
+    UWORD rotate;
     Time_data now;
 
     const char *configFile;
-    
+
 };
 
 struct calendar_s gstCalendar = 
 {
     .configFile = "config.ini",
+    .rotate = ROTATE_180,
 };
 
 typedef struct config_s
@@ -69,7 +71,7 @@ void CALENDAR_GetConfig()
         Paint_DrawString_EN(10, 700, "Can't load ini", &Font16, EPD_7IN3F_BLACK, EPD_7IN3F_WHITE);
         return;
     }
-    sprintf(str_buf, "Config loaded from ini: version=%d, mode=%d name=%s",
+    sprintf(str_buf, "Config loaded from ini: version=%d, mode=%d name=%s\n",
         config.version, config.mode, config.name);
     PrintString(str_buf);
     if (config.name)
@@ -80,45 +82,78 @@ void CALENDAR_Open()
 {
 }
 
-
-void CALENDAR_Draw()
+void _draw_date()
 {
-    char str_temp[64] = {0};
-    UWORD rotate = ROTATE_180;
+#define MAX_STR_LENGTH 64
+    char * week_map[7] = {"Monday", "Tuesday", "Wednesday",
+                          "Thursday", "Friday", "Saturday", "Sunday"};
+    char str_temp[MAX_STR_LENGTH] = {0};
+    int x = 0;
+    int y = 0;
 
-    PCF85063_GetTimeNow(&gstCalendar.now);
-    Paint_SetRotate(rotate);
-
-    memset(str_temp, 0, 64);
-    sprintf(str_temp, "this is a calendar, rotate: %d\n", rotate);
-    PrintString(str_temp);
-
-    memset(str_temp, 0, 64);
-    sprintf(str_temp, "%d-%d-%d %d:%d:%d %d\n",
+    sprintf(str_temp, "20%d-%d-%d",
             gstCalendar.now.years,
             gstCalendar.now.months,
-            gstCalendar.now.days,
+            gstCalendar.now.days);
+    Paint_DrawString_EN(0, 0, str_temp, &Font20, EPD_7IN3F_BLACK, EPD_7IN3F_TEXT_TRANSPARENT);
+
+    memset(str_temp, 0, MAX_STR_LENGTH);
+    sprintf(str_temp, "%d:%d:%d",
             gstCalendar.now.hours,
             gstCalendar.now.minutes,
-            gstCalendar.now.seconds,
-			gstCalendar.now.weeks);
+            gstCalendar.now.seconds);
+    Paint_DrawString_EN(0, 30, str_temp, &Font20, EPD_7IN3F_BLACK, EPD_7IN3F_TEXT_TRANSPARENT);
+
+    Paint_DrawString_EN(0, 60, week_map[gstCalendar.now.weeks], &Font24, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
+}
+
+void _debug_info()
+{
+    char str_temp[64] = {0};
+    memset(str_temp, 0, 64);
+    sprintf(str_temp, "this is a calendar\n");
     PrintString(str_temp);
 
-    memset(str_temp, 0, 64);
-    sprintf(str_temp, "VBUS: %d\n", DEV_Digital_Read(VBUS));
-    PrintString(str_temp);
+    // memset(str_temp, 0, 64);
+    // sprintf(str_temp, "VBUS: %d\n", DEV_Digital_Read(VBUS));
+    // PrintString(str_temp);
 
-    memset(str_temp, 0, 64);
-    sprintf(str_temp, "RTC_INT: %d\n", DEV_Digital_Read(RTC_INT));
-    PrintString(str_temp);
+    // memset(str_temp, 0, 64);
+    // sprintf(str_temp, "RTC_INT: %d\n", DEV_Digital_Read(RTC_INT));
+    // PrintString(str_temp);
 
-    memset(str_temp, 0, 64);
-    sprintf(str_temp, "CHARGE_STATE: %d\n", DEV_Digital_Read(CHARGE_STATE));
-    PrintString(str_temp);
+    // memset(str_temp, 0, 64);
+    // sprintf(str_temp, "CHARGE_STATE: %d\n", DEV_Digital_Read(CHARGE_STATE));
+    // PrintString(str_temp);
 //当接电源的时候 110 ，不接 011
+
+}
+
+void _low_power_check(void *pdata)
+{
+    const float low_power_threshold = 5.0;
+    float *pVoltage = (float *)pdata;
+    char str_temp[64] = {0};
+
+    if (pVoltage != NULL && *pVoltage < low_power_threshold) {
+        memset(str_temp, 0, 64);
+        sprintf(str_temp, "\nvoltage: %.2f, low power, please charge in time\n", *pVoltage);
+        PrintString(str_temp);
+    }
+}
+
+void CALENDAR_work(void *pdata)
+{
+    PCF85063_GetTimeNow(&gstCalendar.now);
+    Paint_SetRotate(gstCalendar.rotate);
 
     if (FS_isSdCardMounted() == true)
         CALENDAR_GetConfig();
+
+    _draw_date();
+
+    _debug_info();
+    _low_power_check(pdata);
 }
 
 
@@ -135,7 +170,7 @@ void CALENDAR_Test()
 {
     CALENDAR_Init();
     CALENDAR_Open();
-    CALENDAR_Draw();
+    CALENDAR_work(NULL);
     CALENDAR_Close();
     CALENDAR_Deinit();
 }
