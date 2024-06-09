@@ -11,8 +11,9 @@
 #include <time.h>
 #include "ini.h"
 
-extern const char *fileList;
-extern char pathName[];
+#include "GUI_Paint.h"
+#include <stdlib.h> // malloc() free()
+#include <string.h>
 
 #define enChargingRtc 0
 
@@ -61,7 +62,9 @@ void eink_display()
 
     PICTURE_Draw();
     // CALENDAR_Init();
+    rtc_time_initialize();
     CALENDAR_work(&voltage);
+    
 
     DISPLAY_Draw();
     DISPLAY_Close();
@@ -92,7 +95,6 @@ int main()
     }
 
     FS_Init();
-
 
     if(!DEV_Digital_Read(VBUS)) {    // no charge state
         eink_display();

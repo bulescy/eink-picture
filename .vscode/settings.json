@@ -18,6 +18,8 @@
         "type_traits": "c",
         "ini.h": "c",
         "debug.h": "c",
-        "fonts.h": "c"
+        "fonts.h": "c",
+        "picture.h": "c",
+        "stdio.h": "c"
     }
 }

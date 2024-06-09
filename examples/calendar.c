@@ -53,14 +53,6 @@ struct calendar_s gstCalendar =
 
 char str_debug[64] = {0};
 
-#define DEBUG_PRINT(fmt, ...)     \
-do \
-{ \
-    memset(str_debug, 0, 64); \
-    sprintf(str_debug, fmt, ##__VA_ARGS__); \
-    PrintString(str_debug); \
-} while(0)
-
 typedef struct config_s
 {
     int version;
@@ -439,7 +431,6 @@ void _special_day_check()
             Paint_DrawString_EN(pos_x, pos_y, pSpecial->note, &Font16, EPD_7IN3F_RED, EPD_7IN3F_TEXT_TRANSPARENT);
             pos_x = text_x_start;
             pos_y += Font16.Height;
-            DEBUG_PRINT("i %d, pos_y %d\n", i, pos_y);
         }
     }
 }
@@ -489,4 +480,56 @@ void CALENDAR_Test()
     CALENDAR_work(NULL);
     CALENDAR_Close();
     CALENDAR_Deinit();
+}
+
+
+void rtc_time_initialize()
+{
+    const char *rtc_init_file = "time.ini";
+    char str_temp[128];
+    FRESULT fr;
+    FIL file;
+    Time_data time = {0};
+    int value[7];
+    int ret = 0;
+
+    if (FS_isSdCardMounted() == true) {
+        if (FS_isFileExist(rtc_init_file)) {
+            fr =  f_open(&file, rtc_init_file, FA_READ);
+            if(FR_OK != fr) {
+                return;
+            }
+            // 24-6-9;20:30:00;6
+            f_gets(str_temp, 128, &file);
+            // ret = sscanf(str_temp, "%d-%d-%d;%d:%d:%d;%d", 
+            //         (int *)&time.years, (int *)&time.months, (int *)&time.days, 
+            //         (int *)&time.hours, (int *)&time.minutes, (int *)&time.seconds, 
+            //         (int *)&time.weeks);
+            // if (ret == 7) {
+                // DEBUG_PRINT("%d-%d-%d;%d:%d:%d;%d\n", time.years, time.months,
+                //                 time.days, time.hours, time.minutes, time.seconds, time.weeks);
+            // }
+            ret = sscanf(str_temp, "%d-%d-%d;%d:%d:%d;%d", 
+                    &value[0], &value[1], &value[2], 
+                    &value[3], &value[4], &value[5], 
+                    &value[6]);
+            if (ret == 7) {
+                time.years = value[0];
+                time.months = value[1];
+                time.days = value[2];
+                time.hours = value[3];
+                time.minutes = value[4];
+                time.seconds = value[5];
+                time.weeks = value[6];
+            } else {
+                DEBUG_PRINT("set time fail, please check time.ini format\n");
+            }
+
+            f_close(&file);
+            f_unlink(rtc_init_file);
+            if (rtcSetTime(&time) != true) {
+                DEBUG_PRINT("set time fail, please reset time.ini\n");
+            }
+        }
+    }
 }

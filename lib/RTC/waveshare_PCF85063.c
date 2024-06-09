@@ -235,11 +235,22 @@ void rtcSetAlarm(Time_data alarmTime)
     PCF85063_alarm_Time_Enabled(alarm);
 }
 
-void rtcSetTime(Time_data *pTime)
+bool rtcSetTime(Time_data *pTime)
 {
+	if ((pTime->years > 99) || \
+		(pTime->months > 12) || \
+		(pTime->days > 31) || \
+		(pTime->hours > 23) || \
+		(pTime->minutes > 59) || \
+		(pTime->seconds > 59) || \
+		(pTime->weeks > 6)) {
+		return false;
+	}
+
     PCF85063_SetTime_HMS(pTime->hours, pTime->minutes, pTime->seconds);
 	PCF85063_SetTime_YMD(pTime->years, pTime->months, pTime->days);
 	PCF85063_Write_Byte(WEEKDAYS_REG, DecToBcd(pTime->weeks)&0x7F);
+	return true;
 }
 
 
