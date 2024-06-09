@@ -10,12 +10,26 @@
 #include <stdlib.h> // malloc() free()
 #include <string.h>
 
-typedef struct _hjz{
+typedef enum {
+    CALENDAR_MODE_SOLAR,
+    CALENDAR_MODE_LUNAR,
+    CALENDAR_MODE_MAX,
+}CALENDAR_MODE_e;
+
+typedef struct CALENDAR_date_s{
     int year;
     int month;
     int day;
     int reserved;
-} hjz;
+} CALENDAR_date_t;
+
+#define CALENDAR_SPECIAL_DATE_MAX_NUMBER    10
+
+typedef struct CALENDAR_special_date_s{
+    CALENDAR_date_t date;
+    CALENDAR_MODE_e mode;
+    const char *note;
+} CALENDAR_special_date_t;
 
 struct calendar_s {
     UBYTE * image;
@@ -23,6 +37,8 @@ struct calendar_s {
     Time_data now;
 
     const char *configFile;
+    CALENDAR_date_t today[CALENDAR_MODE_MAX];
+    CALENDAR_special_date_t special_day[CALENDAR_SPECIAL_DATE_MAX_NUMBER];
 
 };
 
@@ -81,12 +97,12 @@ unsigned int lunar200y[199] = {
 };
 
 int monthTotal[13] = {0,31,59,90,120,151,181,212,243,273,304,334,365};
-hjz toSolar(hjz lunar){
+CALENDAR_date_t toSolar(CALENDAR_date_t lunar){
     int year = lunar.year,
     month = lunar.month,
     day = lunar.day;
     int byNow, xMonth, i;
-    hjz solar;
+    CALENDAR_date_t solar;
     byNow = (lunar200y[year-1901] & 0x001F) - 1;
     if( ((lunar200y[year-1901]&0x0060)>>5) == 2)
         byNow += 31;
@@ -129,13 +145,13 @@ hjz toSolar(hjz lunar){
     return solar;
 }
 
-hjz toLunar(hjz solar){
+CALENDAR_date_t toLunar(CALENDAR_date_t solar){
     int year = solar.year,
     month = solar.month,
     day = solar.day;
     int bySpring,bySolar,daysPerMonth;
     int index,flag;
-    hjz lunar;
+    CALENDAR_date_t lunar;
     
     //bySpring 璁板綍鏄ヨ妭绂诲綋骞村厓鏃︾殑澶╂暟銆?
     //bySolar 璁板綍闃冲巻鏃ョ?诲綋骞村厓鏃︾殑澶╂暟銆?
@@ -252,11 +268,11 @@ void _draw_date()
     const char *week_map[7] = {"Monday", "Tuesday", "Wednesday",
                           "Thursday", "Friday", "Saturday", "Sunday"};
     const char *ChDay[] = {"*","初一","初二","初三","初四","初五",
-        "初六","初七","初八","初九","初十",
-        "十一","十二","十三","十四","十五",
-        "十六","十七","十八","十九","二十",
-        "廿一","廿二","廿三","廿四","廿五",
-        "廿六","廿七","廿八","廿九","三十"};
+                               "初六","初七","初八","初九","初十",
+                               "十一","十二","十三","十四","十五",
+                               "十六","十七","十八","十九","二十",
+                               "廿一","廿二","廿三","廿四","廿五",
+                               "廿六","廿七","廿八","廿九","三十"};
     const char *ChMonth[] = {"*","正月","二月","三月","四月","五月","六月","七月",
                                 "八月","九月","十月","十一月","腊月"};
 
@@ -279,15 +295,9 @@ void _draw_date()
 
     Paint_DrawString_EN(0, 60, week_map[gstCalendar.now.weeks], &Font24, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
 
-
-    hjz osolar = {0};
-    osolar.year = 2000+gstCalendar.now.years;
-    osolar.month = gstCalendar.now.months;
-    osolar.day = gstCalendar.now.days;
-    hjz lunar = toLunar(osolar);
-
-    Paint_DrawString_CN(0, 90, ChMonth[lunar.month], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
-    Paint_DrawString_CN(40, 90, ChDay[lunar.day], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
+    CALENDAR_date_t *pLunar = &gstCalendar.today[CALENDAR_MODE_LUNAR];
+    Paint_DrawString_CN(0, 90, ChMonth[pLunar->month], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
+    Paint_DrawString_CN(40, 90, ChDay[pLunar->day], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
 }
 
 void _debug_info()
@@ -325,11 +335,57 @@ void _low_power_check(void *pdata)
     }
 }
 
-void _draw_date_full_month()
+void _calendar_area(int first_weekday, int days_now, int days)
 {
     char str_temp[64] = {0};
+    char str_print[64] = {0};
+    UWORD text_x_start = 5;
+    UWORD text_y_start = 120;
+    UBYTE pos_x = text_x_start, pos_y = text_y_start;
+    sFONT *pFont = &Font16;
+    UBYTE font_h = pFont->Height;
+    UBYTE font_w = pFont->Width;
+    UBYTE font_color = EPD_7IN3F_BLACK;
+    UBYTE font_color_bg = EPD_7IN3F_TEXT_TRANSPARENT;
+
+    memset(str_temp, 0, 64);
+    sprintf(str_temp, "Mo Tu We Th Fr Sa Su");
+    Paint_DrawString_EN(pos_x, pos_y, str_temp, pFont, font_color, font_color_bg);
+    pos_y += font_h;
+
+    memset(str_temp, 0, 64);
+    sprintf(str_temp, "   ");
+    for (int i = 0; i < first_weekday; i++) {
+        strcat(str_print, str_temp);
+    }
+    Paint_DrawString_EN(pos_x, pos_y, str_print, pFont, font_color, font_color_bg);
+    pos_x += font_w * 3 * first_weekday;
+
+    for (int day = 1; day <= days; day++) {
+        memset(str_temp, 0, 64);
+        sprintf(str_temp, "%2d ", day);
+
+        if (day == days_now) {
+            font_color = EPD_7IN3F_RED;
+            font_color_bg = EPD_7IN3F_YELLOW;
+        } else {
+            font_color = EPD_7IN3F_BLACK;
+            font_color_bg = EPD_7IN3F_TEXT_TRANSPARENT;
+        }
+        Paint_DrawString_EN(pos_x, pos_y, str_temp, pFont, font_color, font_color_bg);
+        pos_x += font_w * 3;
+
+        if ((day + first_weekday) % 7 == 0) {
+            pos_x = text_x_start;
+            pos_y += font_h;
+        }
+    }
+}
+
+
+void _draw_date_full_month()
+{
     UBYTE days_in_month[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    bool is_leap_year = false;
     UWORD years_now = 2000 + gstCalendar.now.years;
     UWORD months_now = gstCalendar.now.months;
     UWORD days_now = gstCalendar.now.days;
@@ -342,36 +398,42 @@ void _draw_date_full_month()
 
     int first_weekday = (7 - ((days_now - 1) % 7) + weeks_now) % 7;
     int days = days_in_month[months_now - 1];   // Number of days in the month
-    memset(str_temp, 0, 64);
-    sprintf(str_temp, "     %d-%02d\nMo Tu We Th Fr Sa Su\n", years_now, months_now);
-    PrintString(str_temp);
-
-    for (int i = 0; i < first_weekday; i++) {
-        sprintf(str_temp, "   ");
-        PrintString(str_temp);
-    }
-
-    for (int day = 1; day <= days; day++) {
-        memset(str_temp, 0, 64);
-        sprintf(str_temp, "%2d ", day);
-        if (day == days_now) {
-            memset(str_temp, 0, 64);
-            sprintf(str_temp, "xx ");
-            PrintString(str_temp);
-        } else {
-            PrintString(str_temp);
-        }
-        if ((day + first_weekday) % 7 == 0) {
-            memset(str_temp, 0, 64);
-            sprintf(str_temp, "\n");
-            PrintString(str_temp);
-        }
-    }
+    _calendar_area(first_weekday, days_now, days);
 }
 
-void _special_day()
+bool isTodaySpecial(CALENDAR_MODE_e mode, CALENDAR_date_t check)
 {
+    CALENDAR_date_t *pToday = NULL;
 
+    pToday = &gstCalendar.today[mode];
+    if (pToday->day == check.day && pToday->month == check.month) {
+        return true;
+    }
+    return false;
+}
+
+void _special_day_check()
+{
+    CALENDAR_special_date_t *pSpecial;
+    for (int i = 0; i < CALENDAR_SPECIAL_DATE_MAX_NUMBER; ++i) {
+        pSpecial = &gstCalendar.special_day[i];
+
+        if (isTodaySpecial(pSpecial->mode, pSpecial->date)) {
+            ;
+        }
+    }
+
+}
+
+void _get_calendar_info()
+{
+    CALENDAR_date_t *pSolar = &gstCalendar.today[CALENDAR_MODE_SOLAR];
+    CALENDAR_date_t *pLunar = &gstCalendar.today[CALENDAR_MODE_LUNAR];
+
+    pSolar->year = 2000+gstCalendar.now.years;
+    pSolar->month = gstCalendar.now.months;
+    pSolar->day = gstCalendar.now.days;
+    *pLunar = toLunar(*pSolar);
 }
 
 void CALENDAR_work(void *pdata)
@@ -382,8 +444,9 @@ void CALENDAR_work(void *pdata)
     if (FS_isSdCardMounted() == true)
         CALENDAR_GetConfig();
 
+    _get_calendar_info();
     _draw_date();
-    _special_day();
+    _special_day_check();
     _draw_date_full_month();
 
     _debug_info();

@@ -143,7 +143,7 @@ void PCF85063_alarm_Time_Enabled(Time_data time)
     }
     else if(time.months == 2)
     {
-        if(time.years%4==0)
+        if((time.years % 4 == 0 && time.years % 100 != 0) || (time.years % 400 == 0))
         {
             if(time.days>29)
             {
@@ -223,16 +223,14 @@ void rtcRunAlarm(Time_data time, Time_data alarmTime)
 
 void rtcSetAlarm(Time_data alarmTime)
 {
-    Time_data now;
-    Time_data alarm;
+    Time_data now = {0};
+    Time_data alarm = {0};
     PCF85063_GetTimeNow(&now);
 
-    alarm.seconds = alarmTime.seconds + now.seconds;
+    alarm.seconds = 0;
     alarm.minutes = alarmTime.minutes + now.minutes;
     alarm.hours = alarmTime.hours + now.hours;
     alarm.days = alarmTime.days + now.days;
-    alarm.months = alarmTime.months + now.months;
-    alarm.years = alarmTime.years + now.years;
 
     PCF85063_alarm_Time_Enabled(alarm);
 }

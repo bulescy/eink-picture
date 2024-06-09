@@ -613,7 +613,7 @@ void Paint_DrawString_EN(UWORD Xstart, UWORD Ystart, const char * pString,
 }
 
 const UWORD text_x_start_default = 0;
-const UWORD text_y_start_default = 240;
+const UWORD text_y_start_default = 360;
 void PrintString(const char * pString)
 {
     UWORD text_x_start = text_x_start_default;
@@ -626,7 +626,7 @@ void PrintString(const char * pString)
     
     UWORD Xpoint = x_pos;
     UWORD Ypoint = y_pos;
-    sFONT* Font = &Font16;
+    sFONT* Font = &Font12;
 
     UWORD Color_Foreground = 0x0; //text color is black
     UWORD Color_Background = 0xff;
