@@ -46,7 +46,20 @@ struct calendar_s gstCalendar =
 {
     .configFile = "config.ini",
     .rotate = ROTATE_180,
+    .special_day = {{{2024, 6, 9}, CALENDAR_MODE_SOLAR, "hello"},
+                    {{2024, 5, 4}, CALENDAR_MODE_LUNAR, "world"},
+                        },
 };
+
+char str_debug[64] = {0};
+
+#define DEBUG_PRINT(fmt, ...)     \
+do \
+{ \
+    memset(str_debug, 0, 64); \
+    sprintf(str_debug, fmt, ##__VA_ARGS__); \
+    PrintString(str_debug); \
+} while(0)
 
 typedef struct config_s
 {
@@ -341,7 +354,7 @@ void _calendar_area(int first_weekday, int days_now, int days)
     char str_print[64] = {0};
     UWORD text_x_start = 5;
     UWORD text_y_start = 120;
-    UBYTE pos_x = text_x_start, pos_y = text_y_start;
+    UWORD pos_x = text_x_start, pos_y = text_y_start;
     sFONT *pFont = &Font16;
     UBYTE font_h = pFont->Height;
     UBYTE font_w = pFont->Width;
@@ -414,15 +427,21 @@ bool isTodaySpecial(CALENDAR_MODE_e mode, CALENDAR_date_t check)
 
 void _special_day_check()
 {
+    UWORD text_x_start = 0;
+    UWORD text_y_start = 240;
+    UWORD pos_x = text_x_start, pos_y = text_y_start;
+
     CALENDAR_special_date_t *pSpecial;
     for (int i = 0; i < CALENDAR_SPECIAL_DATE_MAX_NUMBER; ++i) {
         pSpecial = &gstCalendar.special_day[i];
 
         if (isTodaySpecial(pSpecial->mode, pSpecial->date)) {
-            ;
+            Paint_DrawString_EN(pos_x, pos_y, pSpecial->note, &Font16, EPD_7IN3F_RED, EPD_7IN3F_TEXT_TRANSPARENT);
+            pos_x = text_x_start;
+            pos_y += Font16.Height;
+            DEBUG_PRINT("i %d, pos_y %d\n", i, pos_y);
         }
     }
-
 }
 
 void _get_calendar_info()
