@@ -319,7 +319,7 @@ void _draw_date()
     int y = 0;
 
     memset(str_temp, 0, MAX_STR_LENGTH);
-    sprintf(str_temp, "%d:%d:%d",
+    sprintf(str_temp, "%d:%02d:%02d",
             gstCalendar.now.hours,
             gstCalendar.now.minutes,
             gstCalendar.now.seconds);
@@ -451,6 +451,17 @@ bool isTodaySpecial(CALENDAR_MODE_e mode, CALENDAR_date_t check)
     return false;
 }
 
+bool isThisMonthSpecial(CALENDAR_MODE_e mode, CALENDAR_date_t check)
+{
+    CALENDAR_date_t *pDate = NULL;
+
+    pDate = &gstCalendar.today[mode];
+    if (pDate->month == check.month) {
+        return true;
+    }
+    return false;
+}
+
 const UWORD special_area_x = 0;
 const UWORD special_area_y = 240;
 void _special_day_note_print(const char * pString)
@@ -496,16 +507,24 @@ void _special_day_note_print(const char * pString)
         x_pos = Xpoint;
         y_pos = Ypoint;
     }
-    Paint_DrawChar(Xpoint, Ypoint, '\n', Font, Color_Foreground, Color_Background);
+    x_pos = text_x_start;
+    y_pos += Font->Height;
 }
 
 void _special_day_check()
 {
     CALENDAR_special_date_t *pSpecial;
+    char str_tmp[64] = {0};
     for (int i = 0; i < CALENDAR_SPECIAL_DATE_MAX_NUMBER; ++i) {
         pSpecial = &gstCalendar.special_day[i];
 
         if (isTodaySpecial(pSpecial->mode, pSpecial->date)) {
+            _special_day_note_print(pSpecial->note);
+        } else if (isThisMonthSpecial(pSpecial->mode, pSpecial->date)) {
+            int remain_days = 0;
+            remain_days = pSpecial->date.day - gstCalendar.today[pSpecial->mode].day;
+            sprintf(str_tmp, "%d days later is ", remain_days);
+            _special_day_note_print(str_tmp);
             _special_day_note_print(pSpecial->note);
         }
     }
