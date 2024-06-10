@@ -663,6 +663,26 @@ void PrintStringFormat(const char * pString)
     char str_buf[128];
 
 }
+
+void Paint_DrawString_Center(UWORD Xstart, UWORD Ystart, const char * pString,
+                         sFONT* Font, UWORD Color_Foreground, UWORD Color_Background, UWORD text_width)
+{
+    UWORD string_width = 0;
+    UWORD string_len = 0;
+    UDOUBLE x_ponit = 0, y_point = 0;
+
+    string_len = strlen(pString);
+    string_width = Font->Width * string_len;
+    if (string_width < text_width) {
+        x_ponit = (Xstart + text_width - string_width) / 2;
+        y_point = Ystart;
+        Paint_DrawString_EN(x_ponit, y_point, pString, Font, Color_Foreground, Color_Background);
+    } else {
+        //normal
+        Paint_DrawString_EN(Xstart, Ystart, pString, Font, Color_Foreground, Color_Background);
+    }
+}
+
 /******************************************************************************
 function: Display the string
 parameter:
@@ -756,6 +776,25 @@ void Paint_DrawString_CN(UWORD Xstart, UWORD Ystart, const char * pString, cFONT
             /* Decrement the column position by 16 */
             x += font->Width;
         }
+    }
+}
+
+void Paint_DrawStringCN_Center(UWORD Xstart, UWORD Ystart, const char * pString,
+                         cFONT* Font, UWORD Color_Foreground, UWORD Color_Background, UWORD text_width)
+{
+    UWORD string_width = 0;
+    UWORD string_len = 0;
+    UDOUBLE x_ponit = 0, y_point = 0;
+
+    string_len = strlen(pString) / 2;
+    string_width = Font->Width * string_len;
+    if (string_width < text_width) {
+        x_ponit = (Xstart + text_width - string_width) / 2;
+        y_point = Ystart;
+        Paint_DrawString_CN(x_ponit, y_point, pString, Font, Color_Foreground, Color_Background);
+    } else {
+        //normal
+        Paint_DrawString_CN(Xstart, Ystart, pString, Font, Color_Foreground, Color_Background);
     }
 }
 

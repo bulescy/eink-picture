@@ -20,6 +20,7 @@
         "debug.h": "c",
         "fonts.h": "c",
         "picture.h": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "typeinfo": "c"
     }
 }

@@ -28,7 +28,7 @@ typedef struct CALENDAR_date_s{
 typedef struct CALENDAR_special_date_s{
     CALENDAR_date_t date;
     CALENDAR_MODE_e mode;
-    const char *note;
+    char *note;
 } CALENDAR_special_date_t;
 
 struct calendar_s {
@@ -46,9 +46,9 @@ struct calendar_s gstCalendar =
 {
     .configFile = "config.ini",
     .rotate = ROTATE_180,
-    .special_day = {{{2024, 6, 9}, CALENDAR_MODE_SOLAR, "hello"},
-                    {{2024, 5, 4}, CALENDAR_MODE_LUNAR, "world"},
-                        },
+    // .special_day = {{{2024, 6, 9}, CALENDAR_MODE_SOLAR, "hello"},
+    //                 {{2024, 5, 4}, CALENDAR_MODE_LUNAR, "world"},
+    //                     },
 };
 
 char str_debug[64] = {0};
@@ -64,6 +64,10 @@ static int handler(void* user, const char* section, const char* name,
                    const char* value)
 {
     config_t* pconfig = (config_t*)user;
+    const char* section_pre = "special_";
+    int section_idx = 0;
+    int ret = 0;
+    int tmp_value[2];
 
     #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
     if (MATCH("common", "version")) {
@@ -72,9 +76,40 @@ static int handler(void* user, const char* section, const char* name,
         pconfig->name = strdup(value);
     } else if (MATCH("common", "mode")) {
         pconfig->mode = atoi(value);
+    } else if (strstr(section, section_pre) != NULL) {
+        ret = sscanf(section, "special_%d", &section_idx);
+        if (ret == 1) {
+            if (section_idx >= CALENDAR_SPECIAL_DATE_MAX_NUMBER) {
+                return 0;
+            }
+            if (strcmp(name, "date") == 0) {
+                ret = sscanf(value, "%d-%d", &tmp_value[0], &tmp_value[1]);
+                if (ret == 2) {
+                    gstCalendar.special_day[section_idx].date.month = tmp_value[0];
+                    gstCalendar.special_day[section_idx].date.day = tmp_value[1];
+                    // DEBUG_PRINT("idx %d, month %d, day %d\n", section_idx, tmp_value[0], tmp_value[1]);
+                } else {
+                    return 0;
+                }
+            } else if (strcmp(name, "mode") == 0) {
+                tmp_value[0] = atoi(value);
+                if (tmp_value[0] < 2) {
+                    gstCalendar.special_day[section_idx].mode = (CALENDAR_MODE_e)tmp_value[0];
+                    // DEBUG_PRINT("mode %d\n", gstCalendar.special_day[section_idx].mode);
+                } else {
+                    return 0;
+                }
+            } else if (strcmp(name, "note") == 0) {
+                gstCalendar.special_day[section_idx].note = strdup(value);
+            }
+        } else {
+            return 0;
+        }
+
     } else {
         return 0;  /* unknown section/name, error */
     }
+
     return 1;
 }
 
@@ -249,16 +284,14 @@ void CALENDAR_GetConfig()
     config.version = 0;  /* set defaults */
     config.mode = 0;
     config.name = NULL;
-    char str_buf[100];
 
     if (ini_parse(gstCalendar.configFile, handler, &config) < 0) {
         printf("Can't load ini");
-        Paint_DrawString_EN(10, 700, "Can't load ini", &Font16, EPD_7IN3F_BLACK, EPD_7IN3F_WHITE);
+        DEBUG_PRINT("Can't load ini");
         return;
     }
-    sprintf(str_buf, "Config loaded from ini: version=%d, mode=%d name=%s\n",
-        config.version, config.mode, config.name);
-    PrintString(str_buf);
+    // DEBUG_PRINT("Config loaded from ini: version=%d, mode=%d name=%s\n",
+    //     config.version, config.mode, config.name);
     if (config.name)
         free((void*)config.name);
 }
@@ -285,32 +318,36 @@ void _draw_date()
     int x = 0;
     int y = 0;
 
-    sprintf(str_temp, "20%d-%d-%d",
-            gstCalendar.now.years,
-            gstCalendar.now.months,
-            gstCalendar.now.days);
-    Paint_DrawString_EN(0, 0, str_temp, &Font20, EPD_7IN3F_BLACK, EPD_7IN3F_TEXT_TRANSPARENT);
-
     memset(str_temp, 0, MAX_STR_LENGTH);
     sprintf(str_temp, "%d:%d:%d",
             gstCalendar.now.hours,
             gstCalendar.now.minutes,
             gstCalendar.now.seconds);
-    Paint_DrawString_EN(0, 30, str_temp, &Font20, EPD_7IN3F_BLACK, EPD_7IN3F_TEXT_TRANSPARENT);
+    // Paint_DrawString_EN(0, 30, str_temp, &Font20, EPD_7IN3F_BLACK, EPD_7IN3F_TEXT_TRANSPARENT);
+    Paint_DrawString_Center(0, 30, str_temp, &Font20, EPD_7IN3F_BLACK, EPD_7IN3F_TEXT_TRANSPARENT, 240);
 
-    Paint_DrawString_EN(0, 60, week_map[gstCalendar.now.weeks], &Font24, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
+    // Paint_DrawString_EN(0, 60, week_map[gstCalendar.now.weeks], &Font24, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
+    Paint_DrawString_Center(0, 60, week_map[gstCalendar.now.weeks], &Font24, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT, 120);
 
     CALENDAR_date_t *pLunar = &gstCalendar.today[CALENDAR_MODE_LUNAR];
-    Paint_DrawString_CN(0, 90, ChMonth[pLunar->month], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
-    Paint_DrawString_CN(40, 90, ChDay[pLunar->day], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
+    // memset(str_temp, 0, MAX_STR_LENGTH);
+    // sprintf(str_temp, "%s%s", ChMonth[pLunar->month], ChDay[pLunar->day]);
+    Paint_DrawString_CN(120, 60, ChMonth[pLunar->month], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
+    Paint_DrawString_CN(160, 60, ChDay[pLunar->day], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
+    // Paint_DrawStringCN_Center(120, 60, str_temp, &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT, 120);
+
+    memset(str_temp, 0, MAX_STR_LENGTH);
+    sprintf(str_temp, "20%d-%d-%d",
+            gstCalendar.now.years,
+            gstCalendar.now.months,
+            gstCalendar.now.days);
+    // Paint_DrawString_EN(0, 90, str_temp, &Font20, EPD_7IN3F_BLACK, EPD_7IN3F_TEXT_TRANSPARENT);
+    Paint_DrawString_Center(0, 90, str_temp, &Font20, EPD_7IN3F_BLACK, EPD_7IN3F_TEXT_TRANSPARENT, 240);
+
 }
 
 void _debug_info()
 {
-    char str_temp[64] = {0};
-    memset(str_temp, 0, 64);
-    sprintf(str_temp, "this is a calendar\n");
-    PrintString(str_temp);
 
     // memset(str_temp, 0, 64);
     // sprintf(str_temp, "VBUS: %d\n", DEV_Digital_Read(VBUS));
@@ -331,12 +368,9 @@ void _low_power_check(void *pdata)
 {
     const float low_power_threshold = 5.0;
     float *pVoltage = (float *)pdata;
-    char str_temp[64] = {0};
 
     if (pVoltage != NULL && *pVoltage < low_power_threshold) {
-        memset(str_temp, 0, 64);
-        sprintf(str_temp, "\nvoltage: %.2f, low power, please charge in time\n", *pVoltage);
-        PrintString(str_temp);
+        DEBUG_PRINT("\nvoltage: %.2f, low power, please charge in time\n", *pVoltage);
     }
 }
 
@@ -344,7 +378,7 @@ void _calendar_area(int first_weekday, int days_now, int days)
 {
     char str_temp[64] = {0};
     char str_print[64] = {0};
-    UWORD text_x_start = 5;
+    UWORD text_x_start = 7;
     UWORD text_y_start = 120;
     UWORD pos_x = text_x_start, pos_y = text_y_start;
     sFONT *pFont = &Font16;

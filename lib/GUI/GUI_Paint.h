@@ -209,6 +209,11 @@ void Paint_DrawTime(UWORD Xstart, UWORD Ystart, PAINT_TIME *pTime, sFONT* Font, 
 void Paint_DrawBitMap(const unsigned char* image_buffer);
 
 void PrintString(const char * pString);
+void Paint_DrawString_Center(UWORD Xstart, UWORD Ystart, const char * pString,
+                         sFONT* Font, UWORD Color_Foreground, UWORD Color_Background, UWORD text_width);
+void Paint_DrawStringCN_Center(UWORD Xstart, UWORD Ystart, const char * pString,
+                         cFONT* Font, UWORD Color_Foreground, UWORD Color_Background, UWORD text_width);
+
 #endif
 
 

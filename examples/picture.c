@@ -3,6 +3,7 @@
 #include "run_File.h"
 #include "GUI_Paint.h"
 #include "GUI_BMPfile.h"
+// #include <string.h>
 
 #include "f_util.h"
 // const char *fileList = "fileList.txt";          // Picture names store files

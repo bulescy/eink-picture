@@ -47,6 +47,36 @@ void chargeState_callback()
     }
 }
 
+void create_test_ini_file()
+{
+    const char *name = "config.ini";
+    FRESULT fr;
+    FIL file;
+    char str_tmp[64] = {0};
+// [special_0]
+// date = 04-05
+// mode = 0
+// note = mom's birthday
+
+
+    if (FS_isSdCardMounted()) {
+        if (FS_isFileExist(name)) {
+            f_unlink(name);
+
+            fr =  f_open(&file, name, FA_CREATE_ALWAYS|FA_WRITE);
+            if(FR_OK != fr) {
+                return;
+            }
+            f_printf(&file, "[common]\nversion = 13\nmode = 1\nname = \"testini\"\n");
+            f_printf(&file, "[special_0]\ndate = 6-10\nmode = 0\nnote = duanwu\n");
+            f_printf(&file, "[special_2]\ndate = 04-65\nmode = 0\nnote = mom's birthday\n");
+
+            f_close(&file);
+        }
+
+    }
+}
+
 
 void eink_display()
 {
@@ -56,6 +86,8 @@ void eink_display()
     // rtcRunAlarm(Time, alarmTime);  // RTC run alarm
     rtcSetAlarm(target);
     float voltage = measureVBAT();
+
+    // create_test_ini_file();
 
     EPD_Init();
     DISPLAY_Open();
@@ -69,7 +101,6 @@ void eink_display()
     DISPLAY_Draw();
     DISPLAY_Close();
 }
-
 
 int main()
 {
