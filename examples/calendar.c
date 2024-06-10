@@ -330,11 +330,11 @@ void _draw_date()
     Paint_DrawString_Center(0, 60, week_map[gstCalendar.now.weeks], &Font24, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT, 120);
 
     CALENDAR_date_t *pLunar = &gstCalendar.today[CALENDAR_MODE_LUNAR];
-    // memset(str_temp, 0, MAX_STR_LENGTH);
-    // sprintf(str_temp, "%s%s", ChMonth[pLunar->month], ChDay[pLunar->day]);
-    Paint_DrawString_CN(120, 60, ChMonth[pLunar->month], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
-    Paint_DrawString_CN(160, 60, ChDay[pLunar->day], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
-    // Paint_DrawStringCN_Center(120, 60, str_temp, &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT, 120);
+    memset(str_temp, 0, MAX_STR_LENGTH);
+    sprintf(str_temp, "%s %s", ChMonth[pLunar->month], ChDay[pLunar->day]);
+    // Paint_DrawString_CN(120, 60, ChMonth[pLunar->month], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
+    // Paint_DrawString_CN(160, 60, ChDay[pLunar->day], &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT);
+    Paint_DrawStringCN_Center(120, 60, str_temp, &Font12CN, EPD_7IN3F_GREEN, EPD_7IN3F_TEXT_TRANSPARENT, 120);
 
     memset(str_temp, 0, MAX_STR_LENGTH);
     sprintf(str_temp, "20%d-%d-%d",

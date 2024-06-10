@@ -3,7 +3,7 @@
 #include "run_File.h"
 #include "GUI_Paint.h"
 #include "GUI_BMPfile.h"
-// #include <string.h>
+#include <string.h>
 
 #include "f_util.h"
 // const char *fileList = "fileList.txt";          // Picture names store files
@@ -217,7 +217,9 @@ void PICTURE_Draw()
         getCurrentIndex();
         getCurrentFileName();
 
-        GUI_ReadBmp_RGB_7Color(gstPicture.pathName, 0, 0);
+        if (strstr(gstPicture.pathName, ".bmp") != NULL) {
+            GUI_ReadBmp_RGB_7Color(gstPicture.pathName, 0, 0);
+        }
         if (FS_isFileExist(photoFramePath) == true) {
             // GUI_ReadBmp_RGB_7Color_Photo_Frame(photoFramePath, 0, 0);
         }
