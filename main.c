@@ -17,14 +17,6 @@
 
 #define enChargingRtc 0
 
-/*
-Mode 0: Automatically get pic folder names and sort them
-Mode 1: Automatically get pic folder names but not sorted
-Mode 2: pic folder name is not automatically obtained, users need to create fileList.txt file and write the picture name in TF card by themselves
-*/
-#define Mode 1
-
-
 float measureVBAT(void)
 {
     float Voltage=0.0;

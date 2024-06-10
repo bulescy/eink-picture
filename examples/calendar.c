@@ -451,20 +451,62 @@ bool isTodaySpecial(CALENDAR_MODE_e mode, CALENDAR_date_t check)
     return false;
 }
 
+const UWORD special_area_x = 0;
+const UWORD special_area_y = 240;
+void _special_day_note_print(const char * pString)
+{
+    UWORD text_x_start = special_area_x;
+    UWORD text_y_start = special_area_y;
+    UWORD text_width_bound = 240;
+    UWORD text_height_bound = 480;
+
+    static UWORD x_pos = special_area_x;
+    static UWORD y_pos = special_area_y;
+    
+    UWORD Xpoint = x_pos;
+    UWORD Ypoint = y_pos;
+    sFONT* Font = &Font16;
+
+    UWORD Color_Foreground = EPD_7IN3F_RED;
+    UWORD Color_Background = EPD_7IN3F_TEXT_TRANSPARENT;
+    while (* pString != '\0') {
+        if (*pString == '\n') {
+            Xpoint = text_x_start;
+            Ypoint += Font->Height;
+            pString ++;
+
+            x_pos = Xpoint;
+            y_pos = Ypoint;
+            continue;
+        }
+
+        if ((Xpoint + Font->Width ) > text_width_bound) {
+            Xpoint = text_x_start;
+            Ypoint += Font->Height;
+        }
+
+        if ((Ypoint  + Font->Height ) > text_height_bound) {
+            Xpoint = text_x_start;
+            Ypoint = text_y_start;
+        }
+        Paint_DrawChar(Xpoint, Ypoint, *pString, Font, Color_Foreground, Color_Background);
+        pString ++;
+        Xpoint += Font->Width;
+
+        x_pos = Xpoint;
+        y_pos = Ypoint;
+    }
+    Paint_DrawChar(Xpoint, Ypoint, '\n', Font, Color_Foreground, Color_Background);
+}
+
 void _special_day_check()
 {
-    UWORD text_x_start = 0;
-    UWORD text_y_start = 240;
-    UWORD pos_x = text_x_start, pos_y = text_y_start;
-
     CALENDAR_special_date_t *pSpecial;
     for (int i = 0; i < CALENDAR_SPECIAL_DATE_MAX_NUMBER; ++i) {
         pSpecial = &gstCalendar.special_day[i];
 
         if (isTodaySpecial(pSpecial->mode, pSpecial->date)) {
-            Paint_DrawString_EN(pos_x, pos_y, pSpecial->note, &Font16, EPD_7IN3F_RED, EPD_7IN3F_TEXT_TRANSPARENT);
-            pos_x = text_x_start;
-            pos_y += Font16.Height;
+            _special_day_note_print(pSpecial->note);
         }
     }
 }
