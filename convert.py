@@ -10,8 +10,8 @@ parser = argparse.ArgumentParser(description='Process some images.')
 
 # Add orientation parameter
 parser.add_argument('image_file', type=str, help='Input image file')
-parser.add_argument('--dir', choices=['landscape', 'portrait'], default='landscape', help='Image direction (landscape or portrait)')
-parser.add_argument('--mode', choices=['scale', 'cut'], default='scale', help='Image conversion mode (scale or cut)')
+parser.add_argument('--dir', choices=['landscape', 'portrait'], help='Image direction (landscape or portrait)')
+parser.add_argument('--mode', choices=['scale', 'cut'], default='cut', help='Image conversion mode (scale or cut)')
 # parser.add_argument('--dither', type=int, choices=[Image.NONE, Image.FLOYDSTEINBERG], default=Image.FLOYDSTEINBERG, help='Image dithering algorithm (NONE(0) or FLOYDSTEINBERG(3))')
 
 # Parse command line arguments
@@ -35,17 +35,21 @@ input_image = Image.open(input_filename)
 # Get the original image size
 width, height = input_image.size
 
+if input_image.mode not in ['RGB', 'L']:
+    input_image = input_image.convert('RGB')
+
 # Specified target size
 if display_direction:
     if display_direction == 'landscape':
         target_width, target_height = 560, 480
     else:
-        target_width, target_height = 480, 800
+        target_width, target_height = 480, 560
 else:
-    if  width > height:
-        target_width, target_height = 800, 480
+    if  width >= height:
+        target_width, target_height = 560, 480
+        display_mode = 'scale'
     else:
-        target_width, target_height = 480, 800
+        target_width, target_height = 560, 480
     
 if display_mode == 'scale':
     # Computed scaling
@@ -88,7 +92,12 @@ quantized_image = resized_image.quantize(dither=display_dither, palette=pal_imag
 
 # Save output image
 output_filename = os.path.splitext(input_filename)[0] + '_' + display_mode + '_output.bmp'
-quantized_image.save(output_filename)
 
-print(f'Successfully converted {input_filename} to {output_filename}')
+output_folder = "output_picture"
+if not os.path.exists(output_folder):
+    os.makedirs(output_folder)
 
+output_image_path = os.path.join(output_folder, output_filename)
+quantized_image.save(output_image_path)
+
+print(f'Successfully converted {input_filename} to {output_image_path}')

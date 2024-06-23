@@ -454,9 +454,9 @@ bool isTodaySpecial(CALENDAR_MODE_e mode, CALENDAR_date_t check)
 bool isThisMonthSpecial(CALENDAR_MODE_e mode, CALENDAR_date_t check)
 {
     CALENDAR_date_t *pDate = NULL;
-
     pDate = &gstCalendar.today[mode];
-    if (pDate->month == check.month) {
+    
+    if (pDate->month == check.month && pDate->day < check.day) {
         return true;
     }
     return false;
