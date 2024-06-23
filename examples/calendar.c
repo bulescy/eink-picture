@@ -37,15 +37,17 @@ struct calendar_s {
     Time_data now;
 
     const char *configFile;
+    UBYTE toggle_time;
+
     CALENDAR_date_t today[CALENDAR_MODE_MAX];
     CALENDAR_special_date_t special_day[CALENDAR_SPECIAL_DATE_MAX_NUMBER];
-
 };
 
 struct calendar_s gstCalendar = 
 {
     .configFile = "config.ini",
     .rotate = ROTATE_180,
+    .toggle_time = 1,
     // .special_day = {{{2024, 6, 9}, CALENDAR_MODE_SOLAR, "hello"},
     //                 {{2024, 5, 4}, CALENDAR_MODE_LUNAR, "world"},
     //                     },
@@ -76,6 +78,8 @@ static int handler(void* user, const char* section, const char* name,
         pconfig->name = strdup(value);
     } else if (MATCH("common", "mode")) {
         pconfig->mode = atoi(value);
+    } else if (MATCH("common", "toggle_time")) {
+        gstCalendar.toggle_time = atoi(value);
     } else if (strstr(section, section_pre) != NULL) {
         ret = sscanf(section, "special_%d", &section_idx);
         if (ret == 1) {
@@ -346,8 +350,21 @@ void _draw_date()
 
 }
 
-void _debug_info()
+void _low_power_check(void *pdata)
 {
+    const float low_power_threshold = 5.0;
+    float *pVoltage = (float *)pdata;
+
+    if (pVoltage != NULL && *pVoltage < low_power_threshold) {
+        DEBUG_PRINT("\nvoltage: %.2f, low power, please charge in time\n", *pVoltage);
+    }
+}
+
+void _debug_info(void *pdata)
+{
+    _low_power_check(pdata);
+
+    // DEBUG_PRINT("toggle time %d hours\n", gstCalendar.toggle_time);
 
     // memset(str_temp, 0, 64);
     // sprintf(str_temp, "VBUS: %d\n", DEV_Digital_Read(VBUS));
@@ -361,17 +378,6 @@ void _debug_info()
     // sprintf(str_temp, "CHARGE_STATE: %d\n", DEV_Digital_Read(CHARGE_STATE));
     // PrintString(str_temp);
 //当接电源的时�? 110 ，不�? 011
-
-}
-
-void _low_power_check(void *pdata)
-{
-    const float low_power_threshold = 5.0;
-    float *pVoltage = (float *)pdata;
-
-    if (pVoltage != NULL && *pVoltage < low_power_threshold) {
-        DEBUG_PRINT("\nvoltage: %.2f, low power, please charge in time\n", *pVoltage);
-    }
 }
 
 void _calendar_area(int first_weekday, int days_now, int days)
@@ -541,6 +547,17 @@ void _get_calendar_info()
     *pLunar = toLunar(*pSolar);
 }
 
+void _set_toggle_time()
+{
+    Time_data target = {0};
+    if (gstCalendar.toggle_time > 24 || gstCalendar.toggle_time < 1) {
+        gstCalendar.toggle_time = 1;
+    }
+    target.hours = gstCalendar.toggle_time;
+    PCF85063_clear_alarm_flag();    // clear RTC alarm flag
+    rtcSetAlarm(target);
+}
+
 void CALENDAR_work(void *pdata)
 {
     PCF85063_GetTimeNow(&gstCalendar.now);
@@ -549,13 +566,14 @@ void CALENDAR_work(void *pdata)
     if (FS_isSdCardMounted() == true)
         CALENDAR_GetConfig();
 
+    _set_toggle_time();
+
     _get_calendar_info();
     _draw_date();
     _special_day_check();
     _draw_date_full_month();
 
-    _debug_info();
-    _low_power_check(pdata);
+    _debug_info(pdata);
 }
 
 

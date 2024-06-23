@@ -72,11 +72,6 @@ void create_test_ini_file()
 
 void eink_display()
 {
-    Time_data target = {0};
-    target.hours = 1;
-    PCF85063_clear_alarm_flag();    // clear RTC alarm flag
-    // rtcRunAlarm(Time, alarmTime);  // RTC run alarm
-    rtcSetAlarm(target);
     float voltage = measureVBAT();
 
     // create_test_ini_file();
