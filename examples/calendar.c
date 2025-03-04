@@ -24,6 +24,8 @@ typedef struct CALENDAR_date_s{
 } CALENDAR_date_t;
 
 #define CALENDAR_SPECIAL_DATE_MAX_NUMBER    10
+#define PICTURE_MODE_CALENDAR       0
+#define PICTURE_MODE_FULL           1
 
 typedef struct CALENDAR_special_date_s{
     CALENDAR_date_t date;
@@ -35,6 +37,7 @@ struct calendar_s {
     UBYTE * image;
     UWORD rotate;
     Time_data now;
+    int picmode;
 
     const char *configFile;
     UBYTE toggle_time;
@@ -48,6 +51,7 @@ struct calendar_s gstCalendar =
     .configFile = "config.ini",
     .rotate = ROTATE_180,
     .toggle_time = 1,
+    .picmode = PICTURE_MODE_CALENDAR,
     // .special_day = {{{2024, 6, 9}, CALENDAR_MODE_SOLAR, "hello"},
     //                 {{2024, 5, 4}, CALENDAR_MODE_LUNAR, "world"},
     //                     },
@@ -77,7 +81,7 @@ static int handler(void* user, const char* section, const char* name,
     } else if (MATCH("common", "name")) {
         pconfig->name = strdup(value);
     } else if (MATCH("common", "mode")) {
-        pconfig->mode = atoi(value);
+        gstCalendar.picmode = atoi(value);
     } else if (MATCH("common", "toggle_time")) {
         gstCalendar.toggle_time = atoi(value);
     } else if (strstr(section, section_pre) != NULL) {
@@ -558,14 +562,16 @@ void _set_toggle_time()
     rtcSetAlarm(target);
 }
 
-void CALENDAR_work(void *pdata)
+int CALENDAR_work(void *pdata)
 {
+    int iniflag = 0;
     PCF85063_GetTimeNow(&gstCalendar.now);
     Paint_SetRotate(gstCalendar.rotate);
 
     if (FS_isSdCardMounted() == true)
         CALENDAR_GetConfig();
-
+    
+    iniflag = gstCalendar.picmode;
     _set_toggle_time();
 
     _get_calendar_info();
@@ -574,6 +580,7 @@ void CALENDAR_work(void *pdata)
     _draw_date_full_month();
 
     _debug_info(pdata);
+    return iniflag;
 }
 
 

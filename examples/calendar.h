@@ -13,7 +13,7 @@ do \
 typedef struct calendar_s calendar_t;
 
 void CALENDAR_Init();
-void CALENDAR_work(void *pdata);
+int CALENDAR_work(void *pdata);
 void CALENDAR_Test();
 void rtc_time_initialize();
 #endif

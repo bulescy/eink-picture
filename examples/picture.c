@@ -209,10 +209,18 @@ static void updatePathIndexas()
     printf("updatePathIndex index is %d\r\n", index);
 }
 
-void PICTURE_Draw()
+void PICTURE_Draw(int picmode)
 {
+    char pic_folder[64];
+    memset(pic_folder, 0, 64);
+
+    if (picmode == 0) {
+        sprintf(pic_folder, "0:/pic");
+    } else {
+        sprintf(pic_folder, "0:/fullpic");
+    }
     if (FS_isSdCardMounted() == true) {
-        ls2file("0:/pic", gstPicture.fileList);
+        ls2file(pic_folder, gstPicture.fileList);
         run_cat(gstPicture.fileList);
         getCurrentIndex();
         getCurrentFileName();

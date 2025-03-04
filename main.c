@@ -73,17 +73,18 @@ void create_test_ini_file()
 void eink_display()
 {
     float voltage = measureVBAT();
+    int picmode = 0;
 
     // create_test_ini_file();
 
     EPD_Init();
     DISPLAY_Open();
 
-    PICTURE_Draw();
     // CALENDAR_Init();
     rtc_time_initialize();
-    CALENDAR_work(&voltage);
-    
+    picmode = CALENDAR_work(&voltage);
+    PICTURE_Draw(picmode);
+
 
     DISPLAY_Draw();
     DISPLAY_Close();
