@@ -356,7 +356,7 @@ void _draw_date()
 
 void _low_power_check(void *pdata)
 {
-    const float low_power_threshold = 5.0;
+    const float low_power_threshold = 3.5;
     float *pVoltage = (float *)pdata;
 
     if (pVoltage != NULL && *pVoltage < low_power_threshold) {
