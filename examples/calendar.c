@@ -327,10 +327,9 @@ void _draw_date()
     int y = 0;
 
     memset(str_temp, 0, MAX_STR_LENGTH);
-    sprintf(str_temp, "%d:%02d:%02d",
+    sprintf(str_temp, "%d:%02d",
             gstCalendar.now.hours,
-            gstCalendar.now.minutes,
-            gstCalendar.now.seconds);
+            gstCalendar.now.minutes);
     // Paint_DrawString_EN(0, 30, str_temp, &Font20, EPD_7IN3F_BLACK, EPD_7IN3F_TEXT_TRANSPARENT);
     Paint_DrawString_Center(0, 30, str_temp, &Font20, EPD_7IN3F_BLACK, EPD_7IN3F_TEXT_TRANSPARENT, 240);
 
